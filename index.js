@@ -8,7 +8,14 @@ const { MongoClient } = require('mongodb');
 const app = express();
 const PORT = process.env.PORT || 80;
 
-const uri = "mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/UsersDataBase";
+            // მონაცემთა ბაზის სახელი
+            
+const basename = "UsersDataBase";
+
+
+const basalink = "You Bata Base link";
+
+const uri = basalink + basename;
 
 const asyncMiddleware = fn => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
