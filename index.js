@@ -30,6 +30,23 @@ app.get('/update', (req, res) => {
 });
 
 // პასუხობს და ასრულებს მოთხოვნას ახალი მომხმარებლის შესაქმნელად
+
+// const runCheck = async () => {
+//         try {
+//           const response = await fetch('http://localhost:80/checkUsers', {
+//             method: 'GET',
+//             headers: {
+//               'Content-Type': 'application/json'
+//             },
+//           });
+//           const data = await response.json();
+//           setDataResponse(data);
+//         } catch (error) {
+//           console.error('Error fetching user data:', error);
+//         }
+//       };
+  
+
         app.post('/create', asyncMiddleware(async (req, res) => {
 
             // იღებს მონაცემებს წინა მხარის ფორმ ელემენტისგან
@@ -65,6 +82,27 @@ app.get('/update', (req, res) => {
 
 
 
+        app.get('/checkUsers', asyncMiddleware(async (req, res) => {
+            const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        
+            try {
+                await client.connect();
+                        const users = await client.db("UsersDataBase").collection("Users").find().toArray();
+        
+                if (users.length > 0) {
+                    res.status(200).json(users);
+                    console.log(users)
+                } else {
+                    res.status(404).json({ message: 'No users found' });
+                }
+            } catch (error) {
+                console.error('Error retrieving users:', error);
+                res.status(500).json({ message: 'Internal server error' });
+            } finally {
+                await client.close();
+            }
+        }));
+        
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'index.html'));
