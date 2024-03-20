@@ -4,63 +4,20 @@ const path = require('path');
 
 
 const { MongoClient } = require('mongodb');
+const { userInfo } = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 80;
 
             // მონაცემთა ბაზის სახელი
             
-const basename = "UsersDataBase";
+const basename = "TestUserBataBase";
 
+const basalink = "mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/";
 
-const basalink = "You Bata Base link";
+// const basalink = "You Bata Base link";
 
 const uri = basalink + basename;
-
-const asyncMiddleware = fn => (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-};
-
-// Add body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use(cors());
-app.use(express.static(path.join(__dirname, '..', '..')));
-
-app.get('/add', (req, res) => {
-    res.send('Response from Backend Server working');
-});
-
-app.get('/update', (req, res) => {
-    res.send('Info is updated');
-});
-
-// პასუხობს და ასრულებს მოთხოვნას ახალი მომხმარებლის შესაქმნელად
-
-// const runCheck = async () => {
-//         try {
-//           const response = await fetch('http://localhost:80/checkUsers', {
-//             method: 'GET',
-//             headers: {
-//               'Content-Type': 'application/json'
-//             },
-//           });
-//           const data = await response.json();
-//           setDataResponse(data);
-//         } catch (error) {
-//           console.error('Error fetching user data:', error);
-//         }
-//       };
-  
-
-        app.post('/create', asyncMiddleware(async (req, res) => {
-
-            // იღებს მონაცემებს წინა მხარის ფორმ ელემენტისგან
-                const { name, address, fasi, raodenoda } = req.body;
-
-            // ქმნის ობიექტს მიღებული მონაცემების შესახებ
-                const newUser = { name, address, fasi, raodenoda };
 
 
                 // ინსტანციის შექმნა : თქვენ ქმნით ახალ ეგზემპლარს MongoClientთქვენი MongoDB 
@@ -69,53 +26,133 @@ app.get('/update', (req, res) => {
                 // კავშირის URI ჩვეულებრივ მოიცავს ისეთ დეტალებს, 
                 // როგორიცაა ჰოსტი, პორტი, მომხმარებლის სახელი, 
                 // პაროლი და მონაცემთა ბაზის სახელი.
-
             const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-            try {
-                await client.connect();
-                const result = await client.db("UsersDataBase").collection("Users").insertOne(newUser);
+
+const asyncMiddleware = fn => (req, res, next) => { Promise.resolve(fn(req, res, next)).catch(next); };
+
+
+// Add body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(cors());
+app.use(express.static(path.join(__dirname, '..', '..')));
+
+
+
+
+
+
+    const withMongoClient = async (handler) => {
+        try {
+            await client.connect();
+            await handler(client);
+        } catch (error) {
+            console.error('Error with MongoDB client:', error);
+            // You can choose how to handle errors here, like sending an error response
+            res.status(500).json({ message: 'Internal server error' });
+        } finally {
+            await client.close();
+        }
+    };
+
+
+    // ეს მოთქოვნა ქმნის ახალ პროდუქტს მონაცემთა ბაზაში products 
+    // შეყვანილი მონაცემებისა და უნიკალური -Id იდენტიფიკატორიტ.
+        app.post('/create', asyncMiddleware(async (req, res) => {
+
+            withMongoClient(async (client) => {
+                        const newUser = req.body;
+                        const result = await client.db("TestUserBataBase").collection("products").insertOne(newUser);
+                        console.log(`New user created with the following id: ${result.insertedId}`);
+                        const user = await client.db("TestUserBataBase").collection("products").findOne({ _id: result.insertedId });
+                        console.log("New user created:", user);
+                        res.status(200).json({ message: 'დაემატა მომხმარებელი', user });
+                    });
+        
+
+
+        }));
+
+
+        app.post('/changeAdvance', asyncMiddleware(async (req, res) => {
+
+            withMongoClient(async (client) => {
+                const AdvanceInfo = req.body;
+                const result = await client.db("TestUserBataBase").collection("UserAdvanceInfo").insertOne(AdvanceInfo);
                 console.log(`New user created with the following id: ${result.insertedId}`);
-                const user = await client.db("UsersDataBase").collection("Users").findOne({ _id: result.insertedId });
-                console.log("New user created:", user);
-                res.status(200).json({ message: 'დაემატა მომხმარებელი', user});
-            } catch (error) {
-                console.error('Error creating user:', error);
-                res.status(500).send('Error creating user');
-            } finally {
-                await client.close();
-            }
+                const Advance = await client.db("TestUserBataBase").collection("UserAdvanceInfo").findOne({ _id: result.insertedId });
+                console.log("New user created:", Advance);
+                res.status(200).json({ message: 'დაემატა მომხმარებელი', Advance });
+            });
+
         }));
 
 
 
-        app.get('/checkUsers', asyncMiddleware(async (req, res) => {
-            const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-        
-            try {
-                await client.connect();
-                        const users = await client.db("UsersDataBase").collection("Users").find().toArray();
-        
-                if (users.length > 0) {
-                    res.status(200).json(users);
-                    console.log(users)
-                } else {
-                    res.status(404).json({ message: 'No users found' });
+
+
+
+
+                // Handle PUT request to update user advance info
+app.put('/changeAdvance', asyncMiddleware(async (req, res) => {
+    const userId = req.params.id; 
+    const updatedInfo = req.body; 
+
+    withMongoClient(async (client) => {
+        try {
+            // Update user advance info in the database
+            const result = await client.db("TestUserBataBase").collection("UserAdvanceInfo")
+                .updateOne({ _id: '65f9f25c89fc88a6d39f8d9f' }, { $set: updatedInfo });
+
+            if (result.modifiedCount === 0) {
+                // If no user was updated, return a 404 error
+                res.status(404).json({ message: 'User not found' });
+            } else {
+                // If user was updated successfully, return success message and updated info
+                const updatedAdvance = await client.db("TestUserBataBase").collection("UserAdvanceInfo")
+                    .findOne({ _id: userId });
+                res.status(200).json({ message: 'User info updated successfully', updatedAdvance });
+            }
+        } catch (error) {
+            console.error('Error updating user info:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    });
+}));
+
+
+
+        app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
+
+            withMongoClient(async (client) => {
+            const Advance = await client.db("TestUserBataBase").collection("UserAdvanceInfo").find().toArray();
+                if(Advance){res.status(200).json(Advance); 
+                    // console.log(Advance)
+                    
                 }
-            } catch (error) {
-                console.error('Error retrieving users:', error);
-                res.status(500).json({ message: 'Internal server error' });
-            } finally {
-                await client.close();
-            }
+                else { res.status(404).json({ message: 'No Advance found' });}
+            })
+
         }));
+
+        app.get('/checkProducts', asyncMiddleware(async (req, res) => {
+
+            withMongoClient(async (client) => {
+            const products = await client.db("TestUserBataBase").collection("products").find().toArray();
+                if (products.length > 0) {res.status(200).json(products); 
+                    // console.log(users) 
+                } 
+                else {res.status(404).json({ message: 'No users found' });}
+            }) 
+
+        }));
+
+
         
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', '..', 'index.html'));
-});
+app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '..', '..', 'index.html')); });
 
-app.listen(PORT, () => {
-    console.log(`Backend server is running on port ${PORT}`);
-});
+app.listen(PORT, () => { console.log(`Backend server is running on port ${PORT}`); });
 
