@@ -76,18 +76,30 @@ app.use(express.static(path.join(__dirname, '..', '..')));
         }));
 
 
+
+        // add basice advance info in defolt maininfo/advance
+
         app.post('/changeAdvance', asyncMiddleware(async (req, res) => {
+            const dbName = "maininfo"; 
+            const collectionName = "advance"; 
+            
 
             withMongoClient(async (client) => {
                 const AdvanceInfo = req.body;
-                const result = await client.db("TestUserBataBase").collection("UserAdvanceInfo").insertOne(AdvanceInfo);
-                console.log(`New user created with the following id: ${result.insertedId}`);
-                const Advance = await client.db("TestUserBataBase").collection("UserAdvanceInfo").findOne({ _id: result.insertedId });
-                console.log("New user created:", Advance);
-                res.status(200).json({ message: 'დაემატა მომხმარებელი', Advance });
+                const database = client.db(dbName);
+                const collection = database.collection(collectionName);
+        
+                const { insertedId } = await collection.insertOne(AdvanceInfo);
+                console.log(`New advance information created with the following id: ${insertedId}`);
+        
+                const Advance = await collection.findOne({ _id: insertedId });
+                console.log("New advance information created:", Advance);
+        
+                res.status(200).json({ message: 'დაემატა წინადადება', Advance });
             });
-
         }));
+        
+
 
 
 
@@ -96,41 +108,44 @@ app.use(express.static(path.join(__dirname, '..', '..')));
 
 
                 // Handle PUT request to update user advance info
-app.put('/changeAdvance', asyncMiddleware(async (req, res) => {
-    const userId = req.params.id; 
-    const updatedInfo = req.body; 
+// app.put('/changeAdvance', asyncMiddleware(async (req, res) => {
+//     const userId = req.params.id; 
+//     const updatedInfo = req.body; 
 
-    withMongoClient(async (client) => {
-        try {
-            // Update user advance info in the database
-            const result = await client.db("TestUserBataBase").collection("UserAdvanceInfo")
-                .updateOne({ _id: '65f9f25c89fc88a6d39f8d9f' }, { $set: updatedInfo });
+//     withMongoClient(async (client) => {
+//         try {
+//             // Update user advance info in the database
+//             const result = await client.db("TestUserBataBase").collection("UserAdvanceInfo")
+//                 .updateOne({ _id: '65f9f25c89fc88a6d39f8d9f' }, { $set: updatedInfo });
 
-            if (result.modifiedCount === 0) {
-                // If no user was updated, return a 404 error
-                res.status(404).json({ message: 'User not found' });
-            } else {
-                // If user was updated successfully, return success message and updated info
-                const updatedAdvance = await client.db("TestUserBataBase").collection("UserAdvanceInfo")
-                    .findOne({ _id: userId });
-                res.status(200).json({ message: 'User info updated successfully', updatedAdvance });
-            }
-        } catch (error) {
-            console.error('Error updating user info:', error);
-            res.status(500).json({ message: 'Internal server error' });
-        }
-    });
-}));
+//             if (result.modifiedCount === 0) {
+//                 // If no user was updated, return a 404 error
+//                 res.status(404).json({ message: 'User not found' });
+//             } else {
+//                 // If user was updated successfully, return success message and updated info
+//                 const updatedAdvance = await client.db("TestUserBataBase").collection("UserAdvanceInfo")
+//                     .findOne({ _id: userId });
+//                 res.status(200).json({ message: 'User info updated successfully', updatedAdvance });
+//             }
+//         } catch (error) {
+//             console.error('Error updating user info:', error);
+//             res.status(500).json({ message: 'Internal server error' });
+//         }
+//     });
+// }));
+
+
+
+
 
 
 
         app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
-
             withMongoClient(async (client) => {
-            const Advance = await client.db("TestUserBataBase").collection("UserAdvanceInfo").find().toArray();
+            const Advance = await client.db("maininfo").collection("advance").find().toArray();
                 if(Advance){res.status(200).json(Advance); 
-                    // console.log(Advance)
-                    
+                    console.log(Advance[0].more);                    
+                    console.log(Advance[0].basice);                    
                 }
                 else { res.status(404).json({ message: 'No Advance found' });}
             })
