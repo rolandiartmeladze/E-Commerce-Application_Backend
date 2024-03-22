@@ -7,7 +7,7 @@ const { MongoClient } = require('mongodb');
 const { userInfo } = require('os');
 
 const app = express();
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3000;
 
             // მონაცემთა ბაზის სახელი
             
@@ -37,7 +37,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
-app.use(express.static(path.join(__dirname, '..', '..')));
+// app.use(express.static(path.join(__dirname, '..', '..')));
+app.use(express.static(path.join(__dirname, 'frontend/build')));
 
 
 
