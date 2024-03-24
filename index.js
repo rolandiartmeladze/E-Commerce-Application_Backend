@@ -7,7 +7,7 @@ const { MongoClient } = require('mongodb');
 const { userInfo } = require('os');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;
 
             // მონაცემთა ბაზის სახელი
             
@@ -157,16 +157,36 @@ app.use(express.static(path.join(__dirname, '../')));
 
             withMongoClient(async (client) => {
             const products = await client.db("TestUserBataBase").collection("products").find().toArray();
-                if (products.length > 0) {res.status(200).json(products); 
-                    // console.log(users) 
-                } 
+                if (products.length > 0) {res.status(200).json(products);} 
                 else {res.status(404).json({ message: 'No users found' });}
             }) 
 
         }));
 
-
+        app.get('/findProduct', asyncMiddleware(async (req, res) => {
+            try {
+                const findinput = req.query.findinput;
         
+                withMongoClient(async (client) => {
+                    const products = await client.db("TestUserBataBase").collection("products").find().toArray();
+        
+                    if (!findinput) {
+                        res.status(200).json(products); // Return all products if no input provided
+                    } else {
+                        const filteredProducts = products.filter(product => product.Name.includes(findinput));
+                        if (filteredProducts.length > 0) {
+                            res.status(200).json(filteredProducts);
+                        } else {
+                            res.status(404).json({ message: 'No products found' });
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error filtering products:', error);
+                res.status(500).json({ error: 'Internal server error' });
+            }
+        }));
+                
 
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../')); });
 
