@@ -171,7 +171,7 @@ app.use(express.static(path.join(__dirname, '../')));
                 withMongoClient(async (client) => {
                     const products = await client.db("TestUserBataBase").collection("products").find().toArray();
                     
-                    if (findinput.length === 0) {
+                    if (findinput <= 0) {
                         res.status(200).json(products); 
                     } else {
                         const lowerFindInput = findinput.toLowerCase(); 
@@ -179,7 +179,7 @@ app.use(express.static(path.join(__dirname, '../')));
                         if (filteredProducts.length > 0) {
                             res.status(200).json(filteredProducts);
                         } else {
-                            res.status(404).json({ message: 'No products found' });
+                            res.status(200).json([]);
                         }
                     }
                 });
