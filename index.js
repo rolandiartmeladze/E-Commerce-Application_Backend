@@ -80,25 +80,25 @@ app.use(express.static(path.join(__dirname, '../')));
 
         // add basice advance info in defolt maininfo/advance
 
-        app.post('/changeAdvance', asyncMiddleware(async (req, res) => {
-            const dbName = "maininfo"; 
-            const collectionName = "advance"; 
+        // app.post('/changeAdvance', asyncMiddleware(async (req, res) => {
+        //     const dbName = "maininfo"; 
+        //     const collectionName = "advance"; 
             
 
-            withMongoClient(async (client) => {
-                const AdvanceInfo = req.body;
-                const database = client.db(dbName);
-                const collection = database.collection(collectionName);
+        //     withMongoClient(async (client) => {
+        //         const AdvanceInfo = req.body;
+        //         const database = client.db(dbName);
+        //         const collection = database.collection(collectionName);
         
-                const { insertedId } = await collection.insertOne(AdvanceInfo);
-                console.log(`New advance information created with the following id: ${insertedId}`);
+        //         const { insertedId } = await collection.insertOne(AdvanceInfo);
+        //         console.log(`New advance information created with the following id: ${insertedId}`);
         
-                const Advance = await collection.findOne({ _id: insertedId });
-                console.log("New advance information created:", Advance);
+        //         const Advance = await collection.findOne({ _id: insertedId });
+        //         console.log("New advance information created:", Advance);
         
-                res.status(200).json({ message: 'დაემატა წინადადება', Advance });
-            });
-        }));
+        //         res.status(200).json({ message: 'დაემატა წინადადება', Advance });
+        //     });
+        // }));
         
 
 
@@ -141,17 +141,17 @@ app.use(express.static(path.join(__dirname, '../')));
 
 
 
-        app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
-            withMongoClient(async (client) => {
-            const Advance = await client.db("maininfo").collection("advance").find().toArray();
-                if(Advance){res.status(200).json(Advance); 
-                    console.log(Advance[0].more);                    
-                    console.log(Advance[0].basice);                    
-                }
-                else { res.status(404).json({ message: 'No Advance found' });}
-            })
+        // app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
+        //     withMongoClient(async (client) => {
+        //     const Advance = await client.db("maininfo").collection("advance").find().toArray();
+        //         if(Advance){res.status(200).json(Advance); 
+        //             console.log(Advance[0].more);                    
+        //             console.log(Advance[0].basice);                    
+        //         }
+        //         else { res.status(404).json({ message: 'No Advance found' });}
+        //     })
 
-        }));
+        // }));
 
         app.get('/checkProducts', asyncMiddleware(async (req, res) => {
 
@@ -170,8 +170,8 @@ app.use(express.static(path.join(__dirname, '../')));
                 withMongoClient(async (client) => {
                     const products = await client.db("TestUserBataBase").collection("products").find().toArray();
         
-                    if (!findinput) {
-                        res.status(200).json(products); // Return all products if no input provided
+                    if (findinput.length == 0) {
+                        res.status(200).json(products); 
                     } else {
                         const filteredProducts = products.filter(product => product.Name.includes(findinput));
                         if (filteredProducts.length > 0) {
@@ -187,6 +187,8 @@ app.use(express.static(path.join(__dirname, '../')));
             }
         }));
                 
+
+
 
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../')); });
 
