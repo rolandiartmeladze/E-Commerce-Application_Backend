@@ -141,17 +141,17 @@ app.use(express.static(path.join(__dirname, '../')));
 
 
 
-        // app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
-        //     withMongoClient(async (client) => {
-        //     const Advance = await client.db("maininfo").collection("advance").find().toArray();
-        //         if(Advance){res.status(200).json(Advance); 
-        //             console.log(Advance[0].more);                    
-        //             console.log(Advance[0].basice);                    
-        //         }
-        //         else { res.status(404).json({ message: 'No Advance found' });}
-        //     })
+        app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
+            withMongoClient(async (client) => {
+            const Advance = await client.db("maininfo").collection("advance").find().toArray();
+                if(Advance){res.status(200).json(Advance); 
+                    console.log(Advance[0].more);                    
+                    console.log(Advance[0].basice);                    
+                }
+                else { res.status(404).json({ message: 'No Advance found' });}
+            })
 
-        // }));
+        }));
 
         app.get('/checkProducts', asyncMiddleware(async (req, res) => {
 
@@ -173,12 +173,17 @@ app.use(express.static(path.join(__dirname, '../')));
                     if (findinput.length == 0) {
                         res.status(200).json(products); 
                     } else {
-                        const filteredProducts = products.filter(product => product.Name.includes(findinput));
-                        if (filteredProducts.length > 0) {
-                            res.status(200).json(filteredProducts);
-                        } else {
-                            res.status(404).json({ message: 'No products found' });
+                        if(findinput.length >0){
+                            const filteredProducts = products.filter(product => product.Name.includes(findinput));
+                            if (filteredProducts.length > 0) {
+                                res.status(200).json(filteredProducts);
+                            } else {
+                                res.status(404).json({ message: 'No products found' });
+                            }    
+                        }else {
+                                                    res.status(404).json({ message: 'No products found' });
                         }
+
                     }
                 });
             } catch (error) {
