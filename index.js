@@ -163,27 +163,24 @@ app.use(express.static(path.join(__dirname, '../')));
 
         }));
 
+
         app.get('/findProduct', asyncMiddleware(async (req, res) => {
             try {
                 const findinput = req.query.findinput;
-        
+                
                 withMongoClient(async (client) => {
                     const products = await client.db("TestUserBataBase").collection("products").find().toArray();
-        
-                    if (findinput.length == 0) {
+                    
+                    if (findinput.length === 0) {
                         res.status(200).json(products); 
                     } else {
-                        if(findinput.length >0){
-                            const filteredProducts = products.filter(product => product.Name.includes(findinput));
-                            if (filteredProducts.length > 0) {
-                                res.status(200).json(filteredProducts);
-                            } else {
-                                res.status(404).json({ message: 'No products found' });
-                            }    
-                        }else {
-                                                    res.status(404).json({ message: 'No products found' });
+                        const lowerFindInput = findinput.toLowerCase(); 
+                        const filteredProducts = products.filter(product => product.Name.toLowerCase().includes(lowerFindInput)); 
+                        if (filteredProducts.length > 0) {
+                            res.status(200).json(filteredProducts);
+                        } else {
+                            res.status(404).json({ message: 'No products found' });
                         }
-
                     }
                 });
             } catch (error) {
@@ -191,7 +188,7 @@ app.use(express.static(path.join(__dirname, '../')));
                 res.status(500).json({ error: 'Internal server error' });
             }
         }));
-                
+                        
 
 
 
