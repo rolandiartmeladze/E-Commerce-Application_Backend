@@ -59,55 +59,6 @@ app.use(express.static(path.join(__dirname, '../')));
     };
 
 
-    // ეს მოთქოვნა ქმნის ახალ პროდუქტს მონაცემთა ბაზაში products 
-    // შეყვანილი მონაცემებისა და უნიკალური -Id იდენტიფიკატორიტ.
-        app.post('/create', asyncMiddleware(async (req, res) => {
-
-            withMongoClient(async (client) => {
-                        const newUser = req.body;
-                        const result = await client.db("TestUserBataBase").collection("products").insertOne(newUser);
-                        console.log(`New user created with the following id: ${result.insertedId}`);
-                        const user = await client.db("TestUserBataBase").collection("products").findOne({ _id: result.insertedId });
-                        console.log("New user created:", user);
-                        res.status(200).json({ message: 'დაემატა მომხმარებელი', user });
-                    });
-        
-
-
-        }));
-
-
-
-        // add basice advance info in defolt maininfo/advance
-
-        // app.post('/changeAdvance', asyncMiddleware(async (req, res) => {
-        //     const dbName = "maininfo"; 
-        //     const collectionName = "advance"; 
-            
-
-        //     withMongoClient(async (client) => {
-        //         const AdvanceInfo = req.body;
-        //         const database = client.db(dbName);
-        //         const collection = database.collection(collectionName);
-        
-        //         const { insertedId } = await collection.insertOne(AdvanceInfo);
-        //         console.log(`New advance information created with the following id: ${insertedId}`);
-        
-        //         const Advance = await collection.findOne({ _id: insertedId });
-        //         console.log("New advance information created:", Advance);
-        
-        //         res.status(200).json({ message: 'დაემატა წინადადება', Advance });
-        //     });
-        // }));
-        
-
-
-
-
-
-
-
-
                 // Handle PUT request to update user advance info
 // app.put('/changeAdvance', asyncMiddleware(async (req, res) => {
 //     const userId = req.params.id; 
@@ -136,22 +87,39 @@ app.use(express.static(path.join(__dirname, '../')));
 // }));
 
 
+                app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
+                    withMongoClient(async (client) => {
+                    const Advance = await client.db("maininfo").collection("advance").find().toArray();
+                        if(Advance){res.status(200).json(Advance); 
+                            console.log(Advance[0].more);                    
+                            console.log(Advance[0].basice);                    
+                        }
+                        else { res.status(404).json({ message: 'No Advance found' });}
+                    })
+
+                }));
 
 
 
+        // ეს მოთხოვნა ქმნის ახალ პროდუქტს მონაცემთა ბაზაში => products 
+        // შეყვანილი მონაცემებისა და უნიკალური -Id იდენტიფიკატორიტ.
+        app.post('/create', asyncMiddleware(async (req, res) => {
 
-
-        app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
             withMongoClient(async (client) => {
-            const Advance = await client.db("maininfo").collection("advance").find().toArray();
-                if(Advance){res.status(200).json(Advance); 
-                    console.log(Advance[0].more);                    
-                    console.log(Advance[0].basice);                    
-                }
-                else { res.status(404).json({ message: 'No Advance found' });}
-            })
+                        const newUser = req.body;
+                        const result = await client.db("TestUserBataBase").collection("products").insertOne(newUser);
+                        console.log(`New user created with the following id: ${result.insertedId}`);
+                        const user = await client.db("TestUserBataBase").collection("products").findOne({ _id: result.insertedId });
+                        console.log("New user created:", user);
+                        res.status(200).json({ message: 'დაემატა მომხმარებელი', user });
+                    });
 
         }));
+
+
+
+        // ფუნქცია აბრუნებს ბაზაში არსებული პროდუქტების სიას
+        // გვერდის ჩატვირთვის ან მონაცემების განახლების შემთხვევაში
 
         app.get('/checkProducts', asyncMiddleware(async (req, res) => {
 
@@ -163,32 +131,35 @@ app.use(express.static(path.join(__dirname, '../')));
 
         }));
 
+        
+
+        // ძიების ფუნქცია იღებს მოხმარებლის მიერ შეყვანილს საძიებო სიტყვას 
+        // აბრუნებს შედებს მონაცემთაბ ბაზიდან თუ პროდუქტის სახელი დაემთხვევა
+        // მომხმარებლის მიერ შეყვანილ მონაცემებს
 
         app.get('/findProduct', asyncMiddleware(async (req, res) => {
-            try {
-                const findinput = req.query.findinput;
-        
-                withMongoClient(async (client) => {
-                    const products = await client.db("TestUserBataBase").collection("products").find().toArray();
-        
-                    if (!findinput) {
-                        res.status(200).json(products); // No search query, return all products
-                    } else {
-                        const lowerFindInput = findinput.toLowerCase(); 
-                        const filteredProducts = products.filter(product => product.Name.toLowerCase().includes(lowerFindInput)); 
-                        if (filteredProducts.length > 0) {
-                            res.status(200).json(filteredProducts);
-                        } else {
-                            res.status(404).json({ message: 'No products found' });
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error filtering products:', error);
-                res.status(500).json({ error: 'Internal server error' });
-            }
+
+            withMongoClient(async (client) => {
+                try {
+                    const findInput = req.query.FindInput; 
+
+                        if (!findInput) {return res.status(400).json({ error: 'Enter a search term' });}
+
+                    const products = await client.db("TestUserBataBase").collection("products")
+                        .find({ "Name": { $regex: findInput, $options: 'i' } }) 
+                        .toArray();
+
+                    res.status(200).json(products);
+                } catch (error) {
+                    console.error('Error filtering products:', error);
+                    res.status(500).json({ error: 'Internal server error' });
+                }
+            });
+
         }));
-        
+
+
+
 
 
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../')); });
