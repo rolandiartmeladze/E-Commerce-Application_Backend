@@ -171,7 +171,7 @@ app.use(express.static(path.join(__dirname, '../')));
                 withMongoClient(async (client) => {
                     const products = await client.db("TestUserBataBase").collection("products").find().toArray();
                     
-                    if (findinput === "") {
+                    if (findinput.length === 0) {
                         res.status(200).json(products); 
                     } else {
                         const lowerFindInput = findinput.toLowerCase(); 
