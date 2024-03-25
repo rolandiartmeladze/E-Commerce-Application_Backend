@@ -167,12 +167,12 @@ app.use(express.static(path.join(__dirname, '../')));
         app.get('/findProduct', asyncMiddleware(async (req, res) => {
             try {
                 const findinput = req.query.findinput;
-                
+        
                 withMongoClient(async (client) => {
                     const products = await client.db("TestUserBataBase").collection("products").find().toArray();
-                    
-                    if (findinput.length === 0) {
-                        res.status(200).json(products); 
+        
+                    if (!findinput) {
+                        res.status(200).json(products); // No search query, return all products
                     } else {
                         const lowerFindInput = findinput.toLowerCase(); 
                         const filteredProducts = products.filter(product => product.Name.toLowerCase().includes(lowerFindInput)); 
@@ -188,8 +188,7 @@ app.use(express.static(path.join(__dirname, '../')));
                 res.status(500).json({ error: 'Internal server error' });
             }
         }));
-                        
-
+        
 
 
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../')); });
