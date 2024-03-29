@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 
 
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const { userInfo } = require('os');
 
 const app = express();
@@ -160,6 +160,32 @@ app.use(express.static(path.join(__dirname, '../')));
 
 
 
+        app.get('/SaleProduct/:productId', asyncMiddleware(async (req, res) => {
+            const productId = req.params.productId;
+            const newQuantity= req.query.newQuantity;
+            
+            
+            withMongoClient(async (client) => {
+                try {
+                    const products = await client.db("TestUserBataBase").collection("products").find().toArray();
+        
+                    const selectedProduct = products.find(product => product._id.toString() === productId);
+        
+                    if (selectedProduct) {
+                        res.status(200).json([{'name': newQuantity},selectedProduct]);
+                    } else {
+                        res.status(404).json({ error: "Product not found" });
+                    }
+                } catch (error) {
+                    console.error('Error finding product:', error);
+                    res.status(500).json({ error: 'Internal server error' });
+                }
+            });
+        }));
+        
+
+        
+        
 
 
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../')); });
