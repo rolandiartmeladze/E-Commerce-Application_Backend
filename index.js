@@ -1,23 +1,42 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
+
+const axios = require('axios');
 
 
-const { MongoClient, ObjectId } = require('mongodb');
+// const router = express.Router();
+const bcrypt = require("bcrypt");
+
+
+const createNewUser = require('./tools/CreateNewUser');
+
+
+
+const { MongoClient } = require('mongodb');
+
+const { ObjectId } = mongoose.Types;
+
+const objectId = new ObjectId();
 const { userInfo } = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 80;
 
-            // მონაცემთა ბაზის სახელი
+        //mongosse atlas base link
+        const basalink = "mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/";
             
 const basename = "TestUserBataBase";
 
-const basalink = "mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/";
 
 // const basalink = "You Bata Base link";
 
 const uri = basalink + basename;
+
+const newbase = basalink + ('my-shop');
+
+
 
 
                 // ინსტანციის შექმნა : თქვენ ქმნით ახალ ეგზემპლარს MongoClientთქვენი MongoDB 
@@ -27,6 +46,8 @@ const uri = basalink + basename;
                 // როგორიცაა ჰოსტი, პორტი, მომხმარებლის სახელი, 
                 // პაროლი და მონაცემთა ბაზის სახელი.
             const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+
 
 
 const asyncMiddleware = fn => (req, res, next) => { Promise.resolve(fn(req, res, next)).catch(next); };
@@ -44,6 +65,7 @@ app.use(express.static(path.join(__dirname, '../')));
 
 
 
+const addnewuser = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
     const withMongoClient = async (handler) => {
         try {
@@ -59,32 +81,10 @@ app.use(express.static(path.join(__dirname, '../')));
     };
 
 
-                // Handle PUT request to update user advance info
-// app.put('/changeAdvance', asyncMiddleware(async (req, res) => {
-//     const userId = req.params.id; 
-//     const updatedInfo = req.body; 
 
-//     withMongoClient(async (client) => {
-//         try {
-//             // Update user advance info in the database
-//             const result = await client.db("TestUserBataBase").collection("UserAdvanceInfo")
-//                 .updateOne({ _id: '65f9f25c89fc88a6d39f8d9f' }, { $set: updatedInfo });
+    
 
-//             if (result.modifiedCount === 0) {
-//                 // If no user was updated, return a 404 error
-//                 res.status(404).json({ message: 'User not found' });
-//             } else {
-//                 // If user was updated successfully, return success message and updated info
-//                 const updatedAdvance = await client.db("TestUserBataBase").collection("UserAdvanceInfo")
-//                     .findOne({ _id: userId });
-//                 res.status(200).json({ message: 'User info updated successfully', updatedAdvance });
-//             }
-//         } catch (error) {
-//             console.error('Error updating user info:', error);
-//             res.status(500).json({ message: 'Internal server error' });
-//         }
-//     });
-// }));
+
 
 
                 app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
@@ -160,33 +160,109 @@ app.use(express.static(path.join(__dirname, '../')));
 
 
 
-        app.get('/SaleProduct/:productId', asyncMiddleware(async (req, res) => {
-            const productId = req.params.productId;
-            const newQuantity= req.query.newQuantity;
-            
-            
-            withMongoClient(async (client) => {
-                try {
-                    const products = await client.db("TestUserBataBase").collection("products").find().toArray();
+
+
+
+    
+        // app.put('/SaleProduct/:productId', async (req, res) => {
+        //     const productId = req.params.productId;
+        //     const newQuantity = req.query.newQuantity;
+        //     try {
+        //         // Update the product quantity
+        //         await withMongoClient(async (client) => {
+        //             const db = client.db(basename);
+        //             const productsCollection = db.collection("products");
+        //             const updatedProduct = await productsCollection.findOneAndUpdate(
+        //                 { _id: ObjectId(productId) },
+        //                 { $set: { quantity: parseInt(newQuantity) } },
+        //                 { returnOriginal: false }
+        //             );
+        //             res.status(200).json(updatedProduct.value);
+        //         });
+        //     } catch (error) {
+        //         console.error("Error handling request:", error);
+        //         res.status(500).json({ error: 'Internal server error' });
+        //     }
+        // });
+    
+
+        // mongoose.connect(basalink, { useNewUrlParser: true, useUnifiedTopology: true })
+
+
+
+
+
+
+
+
+
+//         mongoose.connect(newbase)
+//   .then(() => {
+//     console.log('Connected to MongoDB');
+//     // Your code here
+
+
+//         app.post("/register", asyncMiddleware(async (req, res) => {
         
-                    const selectedProduct = products.find(product => product._id.toString() === productId);
-        
-                    if (selectedProduct) {
-                        res.status(200).json([{'name': newQuantity},selectedProduct]);
-                    } else {
-                        res.status(404).json({ error: "Product not found" });
+//                 try {
+
+//                     const existingUser = await User.findOne({ email: req.body.email });
+//                         if (existingUser) {
+//                             return res.status(400).json({ message: "Email already exists" });
+//                         }
+//                         const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+//         // Create new user
+//         const newUser = new User({
+//             name: req.body.name,
+//             lastname: req.body.lastname,
+//             email: req.body.email,
+//             phone: req.body.phone,
+//             password: hashedPassword,
+//             address: req.body.address
+//         });
+//         await newUser.save();
+//         res.status(201).json( newUser );
+//         console.log(newUser)
+//                 } catch (error) {
+//                     console.error(error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//                 }
+//         }));
+
+//     })
+//     .catch((error) => {
+//       console.error('Error connecting to MongoDB:', error);
+//     });
+
+
+
+
+
+
+
+const name = "my-shop";
+const linki = basalink + name;
+
+
+
+        mongoose.connect(linki, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(() => {console.log('Connected to MongoDB');})
+        .catch((error) => {console.error('Error connecting to MongoDB:', error);});
+                
+                app.post("/register", asyncMiddleware(async (req, res) => {
+                    try {
+                        const newUser = await createNewUser(req.body);
+                        res.status(201).json(newUser);
+                        console.log(newUser);
+                    } 
+                    catch (error) { console.error(error);
+                        if (error.message === "Email already exists") {res.status(400).json({ message: error.message });} 
+                        else {res.status(500).json({ message: "Internal Server Error" });}
                     }
-                } catch (error) {
-                    console.error('Error finding product:', error);
-                    res.status(500).json({ error: 'Internal server error' });
-                }
-            });
-        }));
-        
-
+                }));
         
         
-
 
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../')); });
 
