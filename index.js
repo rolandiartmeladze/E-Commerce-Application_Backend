@@ -262,7 +262,37 @@ const linki = basalink + name;
                     }
                 }));
         
-        
+
+                app.post("/createProduct", asyncMiddleware(async (req, res) => {
+                    try {
+                        const NewProduct = await CreateNewProduct(req.body);
+                        res.status(201).json(NewProduct);
+                        console.log(NewProduct);
+                    } 
+                    catch (error) { console.error(error);
+                         res.status(500).json({ message: "Internal Server Error" });
+                    }
+                }));
+
+
+
+
+                app.get('/Activeuser', asyncMiddleware(async (req, res) =>{
+
+                    try {
+                        const Advance = await client.db("my-shop").collection("users").find().toArray();
+                        if(Advance){res.status(200).json(Advance[0]);}
+                    } 
+                    catch (error) {
+                        res.status(500).json({ message: "Internal Server Error" });
+                    }
+
+
+                 }));
+
+                
+
+
 
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../')); });
 
