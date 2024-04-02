@@ -11,6 +11,7 @@ const bcrypt = require("bcrypt");
 
 
 const createNewUser = require('./tools/CreateNewUser');
+const createNewProduct = require('./tools/CreateNewProduct');
 
 
 
@@ -121,15 +122,15 @@ const addnewuser = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopol
         // ფუნქცია აბრუნებს ბაზაში არსებული პროდუქტების სიას
         // გვერდის ჩატვირთვის ან მონაცემების განახლების შემთხვევაში
 
-        app.get('/checkProducts', asyncMiddleware(async (req, res) => {
+        // app.get('/checkProducts', asyncMiddleware(async (req, res) => {
 
-            withMongoClient(async (client) => {
-            const products = await client.db("TestUserBataBase").collection("products").find().toArray();
-                if (products.length > 0) {res.status(200).json(products);} 
-                else {res.status(404).json({ message: 'No users found' });}
-            }) 
+        //     withMongoClient(async (client) => {
+        //     const products = await client.db("TestUserBataBase").collection("products").find().toArray();
+        //         if (products.length > 0) {res.status(200).json(products);} 
+        //         else {res.status(404).json({ message: 'No users found' });}
+        //     }) 
 
-        }));
+        // }));
 
         //add news
 
@@ -247,9 +248,9 @@ const linki = basalink + name;
 
 
         mongoose.connect(linki, { useNewUrlParser: true, useUnifiedTopology: true })
-        .then(() => {console.log('Connected to MongoDB');})
-        .catch((error) => {console.error('Error connecting to MongoDB:', error);});
-                
+        .then(() => {console.log('Connected to MongoDB');
+    
+                    //work
                 app.post("/register", asyncMiddleware(async (req, res) => {
                     try {
                         const newUser = await createNewUser(req.body);
@@ -265,7 +266,7 @@ const linki = basalink + name;
 
                 app.post("/createProduct", asyncMiddleware(async (req, res) => {
                     try {
-                        const NewProduct = await CreateNewProduct(req.body);
+                        const NewProduct = await createNewProduct(req.body);
                         res.status(201).json(NewProduct);
                         console.log(NewProduct);
                     } 
@@ -276,21 +277,33 @@ const linki = basalink + name;
 
 
 
-
+                    //work 
                 app.get('/Activeuser', asyncMiddleware(async (req, res) =>{
 
                     try {
-                        const Advance = await client.db("my-shop").collection("users").find().toArray();
+                        const Advance = await mongoose.connection.db.collection("users").find().toArray();
                         if(Advance){res.status(200).json(Advance[0]);}
                     } 
-                    catch (error) {
-                        res.status(500).json({ message: "Internal Server Error" });
-                    }
-
-
+                    catch (error) { res.status(500).json({ message: "Internal Server Error" });}
                  }));
 
-                
+
+
+                 //work checked product
+                 app.get('/checkProducts', asyncMiddleware(async (req, res) => {
+
+                    try {
+                        const products = await mongoose.connection.db.collection("products").find().toArray();
+                            if (products.length > 0) {res.status(200).json(products);} 
+                            else {res.status(404).json({ message: 'product not found' });}
+                    }
+                    catch (error) {res.status(500).json({ message: "Internal Server Error" });}
+        
+                    }));
+        
+            })
+            .catch((error) => {console.error('Error connecting to MongoDB:', error);});
+    
 
 
 
