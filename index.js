@@ -291,6 +291,7 @@ const linki = basalink + name;
 
                  //work checked product
                  app.get('/checkProducts', asyncMiddleware(async (req, res) => {
+                    
 
                     try {
                         const products = await mongoose.connection.db.collection("products").find().toArray();
