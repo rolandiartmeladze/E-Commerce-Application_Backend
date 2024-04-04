@@ -350,7 +350,7 @@ const newbase = baselink + ('my-shop');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../')));
 
 mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -409,7 +409,7 @@ mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
     });
 
     app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, '../public/index.html'));
+      res.sendFile(path.join(__dirname, '../'));
     });
 
     app.listen(PORT, () => {
