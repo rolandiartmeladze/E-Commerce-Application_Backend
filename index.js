@@ -42,7 +42,7 @@
 
 
 
-// const asyncMiddleware = fn => (req, res, next) => { Promise.resolve(fn(req, res, next)).catch(next); };
+const asyncMiddleware = fn => (req, res, next) => { Promise.resolve(fn(req, res, next)).catch(next); };
 
 
 // app.use(express.json());
@@ -356,7 +356,7 @@ mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB');
 
-    app.post("/register", async (req, res) => {
+    app.post("/register", asyncMiddleware(async (req, res) => {
       try {
         const newUser = await createNewUser(req.body);
         res.status(201).json(newUser);
@@ -368,9 +368,9 @@ mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
           res.status(500).json({ message: "Internal Server Error" });
         }
       }
-    });
+    }));
 
-    app.post("/createProduct", async (req, res) => {
+    app.post("/createProduct", asyncMiddleware(async (req, res) => {
       try {
         const newProduct = await createNewProduct(req.body);
         res.status(201).json(newProduct);
@@ -378,9 +378,9 @@ mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });
       }
-    });
+    }));
 
-    app.get('/Activeuser', async (req, res) => {
+    app.get('/Activeuser', asyncMiddleware(async (req, res) => {
       try {
         const users = await mongoose.connection.db.collection("users").find().toArray();
         if (users.length > 0) {
@@ -392,9 +392,9 @@ mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });
       }
-    });
+    }));
 
-    app.get('/checkProducts', async (req, res) => {
+    app.get('/checkProducts',asyncMiddleware(async (req, res) => {
       try {
         const products = await mongoose.connection.db.collection("products").find().toArray();
         if (products.length > 0) {
@@ -406,7 +406,7 @@ mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });
       }
-    });
+    }));
 
     app.get('*', (req, res) => {
       res.sendFile(path.join(__dirname, '../'));
