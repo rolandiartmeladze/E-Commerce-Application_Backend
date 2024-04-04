@@ -1,66 +1,68 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const mongoose = require('mongoose');
+// const express = require('express');
+// const cors = require('cors');
+// const path = require('path');
+// const mongoose = require('mongoose');
 
-const axios = require('axios');
-
-
-// const router = express.Router();
-const bcrypt = require("bcrypt");
+// const axios = require('axios');
 
 
-const createNewUser = require('./tools/CreateNewUser');
-const createNewProduct = require('./tools/CreateNewProduct');
+// // const router = express.Router();
+// const bcrypt = require("bcrypt");
+
+
+// const createNewUser = require('./tools/CreateNewUser');
+// const createNewProduct = require('./tools/CreateNewProduct');
 
 
 
-const { MongoClient } = require('mongodb');
+// const { MongoClient } = require('mongodb');
 
-const { ObjectId } = mongoose.Types;
+// const { ObjectId } = mongoose.Types;
 
-const objectId = new ObjectId();
-const { userInfo } = require('os');
+// const objectId = new ObjectId();
+// const { userInfo } = require('os');
 
-const app = express();
-const PORT = process.env.PORT || 80;
+// const app = express();
+// const PORT = process.env.PORT || 80;
 
-        //mongosse atlas base link
-        const basalink = "mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/";
+//         //mongosse atlas base link
+//         const basalink = "mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/";
             
-const basename = "TestUserBataBase";
+// const basename = "TestUserBataBase";
 
 
-// const basalink = "You Bata Base link";
+// // const basalink = "You Bata Base link";
 
-const uri = basalink + basename;
+// const uri = basalink + basename;
 
-const newbase = basalink + ('my-shop');
-
-
-
-
-                // ინსტანციის შექმნა : თქვენ ქმნით ახალ ეგზემპლარს MongoClientთქვენი MongoDB 
-                // მონაცემთა ბაზის კავშირის URI-ის (Uniform Resource Identifier) ​​და ასევე 
-                // ნებისმიერი არჩევითი კონფიგურაციის ვარიანტების მიწოდებით. 
-                // კავშირის URI ჩვეულებრივ მოიცავს ისეთ დეტალებს, 
-                // როგორიცაა ჰოსტი, პორტი, მომხმარებლის სახელი, 
-                // პაროლი და მონაცემთა ბაზის სახელი.
-            // const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+// const newbase = basalink + ('my-shop');
 
 
 
 
-const asyncMiddleware = fn => (req, res, next) => { Promise.resolve(fn(req, res, next)).catch(next); };
 
 
-// Add body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// const asyncMiddleware = fn => (req, res, next) => { Promise.resolve(fn(req, res, next)).catch(next); };
 
-app.use(cors());
 
-app.use(express.static(path.join(__dirname, '../public')));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+
+// app.use(cors());
+
+// app.use(express.static(path.join(__dirname, '../public')));
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////
+// _______________________________
+// აქამდე
+
 
 // app.use(express.static(path.join(__dirname, '../')));
 
@@ -243,74 +245,178 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 
+////////////////////////////////////////////////////////////
+// __________________________________________________________
+// working
 
-const name = "my-shop";
-const linki = basalink + name;
+
+
+// const name = "my-shop";
+// const linki = basalink + name;
 
 
 
-        mongoose.connect(linki, { useNewUrlParser: true, useUnifiedTopology: true })
-        .then(() => {console.log('Connected to MongoDB');
+//         mongoose.connect(linki, { useNewUrlParser: true, useUnifiedTopology: true })
+//         .then(() => {console.log('Connected to MongoDB');
     
-                    //work
-                app.post("/register", asyncMiddleware(async (req, res) => {
-                    try {
-                        const newUser = await createNewUser(req.body);
-                        res.status(201).json(newUser);
-                        console.log(newUser);
-                    } 
-                    catch (error) { console.error(error);
-                        if (error.message === "Email already exists") {res.status(400).json({ message: error.message });} 
-                        else {res.status(500).json({ message: "Internal Server Error" });}
-                    }
-                }));
+//                     //work
+//                 app.post("/register", asyncMiddleware(async (req, res) => {
+//                     try {
+//                         const newUser = await createNewUser(req.body);
+//                         res.status(201).json(newUser);
+//                         console.log(newUser);
+//                     } 
+//                     catch (error) { console.error(error);
+//                         if (error.message === "Email already exists") {res.status(400).json({ message: error.message });} 
+//                         else {res.status(500).json({ message: "Internal Server Error" });}
+//                     }
+//                 }));
         
 
-                app.post("/createProduct", asyncMiddleware(async (req, res) => {
-                    try {
-                        const NewProduct = await createNewProduct(req.body);
-                        res.status(201).json(NewProduct);
-                        console.log(NewProduct);
-                    } 
-                    catch (error) { console.error(error);
-                         res.status(500).json({ message: "Internal Server Error" });
-                    }
-                }));
+//                 app.post("/createProduct", asyncMiddleware(async (req, res) => {
+//                     try {
+//                         const NewProduct = await createNewProduct(req.body);
+//                         res.status(201).json(NewProduct);
+//                         console.log(NewProduct);
+//                     } 
+//                     catch (error) { console.error(error);
+//                          res.status(500).json({ message: "Internal Server Error" });
+//                     }
+//                 }));
 
 
 
-                    //work 
-                app.get('/Activeuser', asyncMiddleware(async (req, res) =>{
+//                     //work 
+//                 app.get('/Activeuser', asyncMiddleware(async (req, res) =>{
 
-                    try {
-                        const Advance = await mongoose.connection.db.collection("users").find().toArray();
-                        if(Advance){res.status(200).json(Advance[0]);}
-                    } 
-                    catch (error) { res.status(500).json({ message: "Internal Server Error" });}
-                 }));
+//                     try {
+//                         const Advance = await mongoose.connection.db.collection("users").find().toArray();
+//                         if(Advance){res.status(200).json(Advance[0]);}
+//                     } 
+//                     catch (error) { res.status(500).json({ message: "Internal Server Error" });}
+//                  }));
 
 
 
-                 //work checked product
-                 app.get('/checkProducts', asyncMiddleware(async (req, res) => {
+//                  //work checked product
+//                  app.get('/checkProducts', asyncMiddleware(async (req, res) => {
                     
 
-                    try {
-                        const products = await mongoose.connection.db.collection("products").find().toArray();
-                            if (products.length > 0) {res.status(200).json(products);} 
-                            else {res.status(404).json({ message: 'product not found' });}
-                    }
-                    catch (error) {res.status(500).json({ message: "Internal Server Error" });}
+//                     try {
+//                         const products = await mongoose.connection.db.collection("products").find().toArray();
+//                             if (products.length > 0) {res.status(200).json(products);} 
+//                             else {res.status(404).json({ message: 'product not found' });}
+//                     }
+//                     catch (error) {res.status(500).json({ message: "Internal Server Error" });}
         
-                    }));
+//                     }));
         
-            })
-            .catch((error) => {console.error('Error connecting to MongoDB:', error);});
+//             })
+//             .catch((error) => {console.error('Error connecting to MongoDB:', error);});
     
 
 
 
-app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../public/index.html')); });
+// app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../public/index.html')); });
 
-app.listen(PORT, () => { console.log(`Backend server is running on port ${PORT}`); });
+// app.listen(PORT, () => { console.log(`Backend server is running on port ${PORT}`); });
 
+
+
+
+
+
+
+
+
+
+
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const mongoose = require('mongoose');
+
+const createNewUser = require('./tools/CreateNewUser');
+const createNewProduct = require('./tools/CreateNewProduct');
+
+const app = express();
+const PORT = process.env.PORT || 80;
+
+const baselink = "mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/";
+const basename = "TestUserBataBase";
+const uri = baselink + basename;
+const newbase = baselink + ('my-shop');
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(express.static(path.join(__dirname, '../public')));
+
+mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB');
+
+    app.post("/register", async (req, res) => {
+      try {
+        const newUser = await createNewUser(req.body);
+        res.status(201).json(newUser);
+      } catch (error) {
+        console.error(error);
+        if (error.message === "Email already exists") {
+          res.status(400).json({ message: error.message });
+        } else {
+          res.status(500).json({ message: "Internal Server Error" });
+        }
+      }
+    });
+
+    app.post("/createProduct", async (req, res) => {
+      try {
+        const newProduct = await createNewProduct(req.body);
+        res.status(201).json(newProduct);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    });
+
+    app.get('/Activeuser', async (req, res) => {
+      try {
+        const users = await mongoose.connection.db.collection("users").find().toArray();
+        if (users.length > 0) {
+          res.status(200).json(users[0]);
+        } else {
+          res.status(404).json({ message: 'No active user found' });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    });
+
+    app.get('/checkProducts', async (req, res) => {
+      try {
+        const products = await mongoose.connection.db.collection("products").find().toArray();
+        if (products.length > 0) {
+          res.status(200).json(products);
+        } else {
+          res.status(404).json({ message: 'No products found' });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    });
+
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, '../public/index.html'));
+    });
+
+    app.listen(PORT, () => {
+      console.log(`Backend server is running on port ${PORT}`);
+    });
+
+  })
+  .catch((error) => {
+    console.error('Error connecting to MongoDB:', error);
+  });
