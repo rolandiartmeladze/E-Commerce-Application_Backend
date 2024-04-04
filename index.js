@@ -46,7 +46,7 @@ const newbase = basalink + ('my-shop');
                 // კავშირის URI ჩვეულებრივ მოიცავს ისეთ დეტალებს, 
                 // როგორიცაა ჰოსტი, პორტი, მომხმარებლის სახელი, 
                 // პაროლი და მონაცემთა ბაზის სახელი.
-            const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+            // const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 
@@ -66,20 +66,20 @@ app.use(express.static(path.join(__dirname, '../')));
 
 
 
-const addnewuser = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+// const addnewuser = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-    const withMongoClient = async (handler) => {
-        try {
-            await client.connect();
-            await handler(client);
-        } catch (error) {
-            console.error('Error with MongoDB client:', error);
-            // You can choose how to handle errors here, like sending an error response
-            res.status(500).json({ message: 'Internal server error' });
-        } finally {
-            await client.close();
-        }
-    };
+    // const withMongoClient = async (handler) => {
+    //     try {
+    //         await client.connect();
+    //         await handler(client);
+    //     } catch (error) {
+    //         console.error('Error with MongoDB client:', error);
+    //         // You can choose how to handle errors here, like sending an error response
+    //         res.status(500).json({ message: 'Internal server error' });
+    //     } finally {
+    //         await client.close();
+    //     }
+    // };
 
 
 
@@ -88,34 +88,34 @@ const addnewuser = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopol
 
 
 
-                app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
-                    withMongoClient(async (client) => {
-                    const Advance = await client.db("maininfo").collection("advance").find().toArray();
-                        if(Advance){res.status(200).json(Advance); 
-                            console.log(Advance[0].more);                    
-                            console.log(Advance[0].basice);                    
-                        }
-                        else { res.status(404).json({ message: 'No Advance found' });}
-                    })
+                // app.get('/checkAdvance', asyncMiddleware(async (req, res) => {
+                //     withMongoClient(async (client) => {
+                //     const Advance = await client.db("maininfo").collection("advance").find().toArray();
+                //         if(Advance){res.status(200).json(Advance); 
+                //             console.log(Advance[0].more);                    
+                //             console.log(Advance[0].basice);                    
+                //         }
+                //         else { res.status(404).json({ message: 'No Advance found' });}
+                //     })
 
-                }));
+                // }));
 
 
 
         // ეს მოთხოვნა ქმნის ახალ პროდუქტს მონაცემთა ბაზაში => products 
         // შეყვანილი მონაცემებისა და უნიკალური -Id იდენტიფიკატორიტ.
-        app.post('/create', asyncMiddleware(async (req, res) => {
+        // app.post('/create', asyncMiddleware(async (req, res) => {
 
-            withMongoClient(async (client) => {
-                        const newUser = req.body;
-                        const result = await client.db("TestUserBataBase").collection("products").insertOne(newUser);
-                        console.log(`New user created with the following id: ${result.insertedId}`);
-                        const user = await client.db("TestUserBataBase").collection("products").findOne({ _id: result.insertedId });
-                        console.log("New user created:", user);
-                        res.status(200).json({ message: 'დაემატა მომხმარებელი', user });
-                    });
+        //     withMongoClient(async (client) => {
+        //                 const newUser = req.body;
+        //                 const result = await client.db("TestUserBataBase").collection("products").insertOne(newUser);
+        //                 console.log(`New user created with the following id: ${result.insertedId}`);
+        //                 const user = await client.db("TestUserBataBase").collection("products").findOne({ _id: result.insertedId });
+        //                 console.log("New user created:", user);
+        //                 res.status(200).json({ message: 'დაემატა მომხმარებელი', user });
+        //             });
 
-        }));
+        // }));
 
 
 
@@ -138,26 +138,26 @@ const addnewuser = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopol
         // აბრუნებს შედებს მონაცემთაბ ბაზიდან თუ პროდუქტის სახელი დაემთხვევა
         // მომხმარებლის მიერ შეყვანილ მონაცემებს
 
-        app.get('/findProduct', asyncMiddleware(async (req, res) => {
+        // app.get('/findProduct', asyncMiddleware(async (req, res) => {
 
-            withMongoClient(async (client) => {
-                try {
-                    const findInput = req.query.FindInput; 
+        //     withMongoClient(async (client) => {
+        //         try {
+        //             const findInput = req.query.FindInput; 
 
-                        if (!findInput) {return res.status(400).json({ error: 'Enter a search term' });}
+        //                 if (!findInput) {return res.status(400).json({ error: 'Enter a search term' });}
 
-                    const products = await client.db("TestUserBataBase").collection("products")
-                        .find({ "Name": { $regex: findInput, $options: 'i' } }) 
-                        .toArray();
+        //             const products = await client.db("TestUserBataBase").collection("products")
+        //                 .find({ "Name": { $regex: findInput, $options: 'i' } }) 
+        //                 .toArray();
 
-                    res.status(200).json(products);
-                } catch (error) {
-                    console.error('Error filtering products:', error);
-                    res.status(500).json({ error: 'Internal server error' });
-                }
-            });
+        //             res.status(200).json(products);
+        //         } catch (error) {
+        //             console.error('Error filtering products:', error);
+        //             res.status(500).json({ error: 'Internal server error' });
+        //         }
+        //     });
 
-        }));
+        // }));
 
 
 
