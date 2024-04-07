@@ -1,13 +1,13 @@
 
 
+require('dotenv').config();
 
-
+const uri = process.env.MONGODB_URI;
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const { ObjectId } = require('mongodb');
 
 const createNewUser = require('./tools/CreateNewUser');
@@ -18,8 +18,7 @@ const PORT = process.env.PORT || 80;
 
 const baselink = "mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/";
 const basename = "TestUserBataBase";
-const uri = baselink + basename;
-const newbase = baselink + ('my-shop');
+// const uri = baselink + ('my-shop');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,7 +28,7 @@ app.use(express.static(path.join(__dirname, '../')));
 const asyncMiddleware = fn => (req, res, next) => { Promise.resolve(fn(req, res, next)).catch(next); };
 
 
-mongoose.connect(newbase, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB');
 
