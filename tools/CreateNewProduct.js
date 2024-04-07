@@ -31,6 +31,8 @@ async function CreateNewProduct(productData) {
 
         await newProduct.save();
 
+
+        
         return newProduct;
     } catch (error) {
         throw error;
