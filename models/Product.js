@@ -13,7 +13,10 @@ const productSchema = new mongoose.Schema({
     price: { type: Number, required: true, default: 0 },
     quantity: { type: Number, required: true, default: 0 },
     quantityUnit: { type: String, required: true },
-    currency: { type: String, required: true }
+    currency: { type: String, required: true },
+    comment:  { type: String, required: true },
+    description:  { type: String, required: true }
+
 });
 
 // Indexes can be added here if needed

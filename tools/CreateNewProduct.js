@@ -7,7 +7,7 @@ const Product = require('../models/Product');
 
 async function CreateNewProduct(productData) {
     try {
-        const { name, email, phone, address, img, price, quantity, quantityiunit, location, owner, sale, view, currency } = productData;
+        const { name, email, phone, address, img, price, quantity, quantityiunit, location, owner, sale, view, currency, comment, description } = productData;
 
         const imageArray = img.map((image, index) => ({
             url: image[`image/*${index}`]
@@ -26,7 +26,9 @@ async function CreateNewProduct(productData) {
             owner: owner,
             sale: sale,
             view: view,
-            currency: currency
+            currency: currency,
+            comment: comment,
+            description: description
         });
 
         await newProduct.save();

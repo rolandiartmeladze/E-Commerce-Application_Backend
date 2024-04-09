@@ -5,6 +5,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 require('dotenv').config();
+const ObjectId = require("mongoose").Types.ObjectId;
 
 // Import utility functions
 const createNewUser = require("./tools/CreateNewUser");
@@ -57,6 +58,44 @@ app.get("/", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.h
             );
             res.status(201).json(newProduct._id);
           }));
+
+
+
+          // მომხმარებლის მიერ სასურველი პროდუქტტტის ფავრიტად მონიშვნა
+          app.post("/FavoritProduct", asyncMiddleware(async (req, res) => {
+            const userId = req.body.userId;
+            const favoritsFromFrontend = req.body.favorits;
+
+            const Member = await mongoose.connection.db.collection("users").findOne({ _id: new ObjectId(userId) });
+            const favoritsFromBackend = Member.favorits;
+            
+
+            if(favoritsFromFrontend && favoritsFromFrontend.length >0){
+
+            favoritsFromFrontend.forEach(element => {
+                if (!favoritsFromBackend.includes(element)) {
+                    favoritsFromBackend.push(element);
+                }
+            });
+            
+            for (let i = favoritsFromBackend.length - 1; i >= 0; i--) {
+                if (!favoritsFromFrontend.includes(favoritsFromBackend[i])) {
+                    favoritsFromBackend.splice(i, 1);
+                }
+            }
+            
+          }
+            
+            await mongoose.connection.db.collection("users").updateOne(
+                { _id: new ObjectId(userId) },
+                { $set: { favorits: favoritsFromBackend } }
+            );
+            
+            res.status(200).json(favoritsFromBackend);
+        
+            console.log("Updated Favorits:", favoritsFromBackend);
+        }));
+
 
             // ამოწმებს ბაზაში პროდუქტების არსებობას და აბრუნებს შესაბამის შედეგს
               app.get("/checkProducts", asyncMiddleware(async (req, res) => {
