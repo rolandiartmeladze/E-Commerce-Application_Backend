@@ -4,6 +4,7 @@ const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const multer = require("multer");
 require('dotenv').config();
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -35,6 +36,37 @@ const asyncMiddleware = fn => (req, res, next) => {Promise.resolve(fn(req, res, 
 
 // Define routes
 app.get("/", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+      cb(null, './media'); // Save files to the './media' directory
+  },
+  filename: function (req, file, cb) {
+      cb(null, file.originalname); 
+  }
+});
+
+// Create multer instance with storage configuration
+const upload = multer({ storage: storage });
+
+
+// მოთხოვნა ინახავს მომხმარებლის მიერ არჩეულ ფოტოს ძირითად საქაღალდეში ./media
+
+app.post('/upload', upload.single('image'), (req, res) => {
+  try {
+      if (!req.file) {
+          return res.status(400).json({ message: 'No file uploaded' });
+      }
+      console.log('File uploaded successfully:', req.file.originalname);
+      res.status(200).json({ message: 'წარმატებით აიტვირთა' });
+  } catch (error) {
+      console.error('Error uploading file:', error);
+      res.status(500).json({ message: 'Error uploading file' });
+  }
+
+});
+
 
 
 // მოთხოვნა ამოწმებს ბაზაში არსბულ უნუკალურ მომხმარებლებს
