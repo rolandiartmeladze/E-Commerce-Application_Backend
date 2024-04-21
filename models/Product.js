@@ -15,7 +15,11 @@ const productSchema = new mongoose.Schema({
     quantityUnit: { type: String, required: true },
     currency: { type: String, required: true },
     comment:  { type: String, required: true },
-    description:  { type: String, required: true }
+    description:  { type: String, required: true },
+    category: { type: String, required: true },
+    datatime: { type: String, required: true },
+    img: { type: Array, required: true }
+
 
 });
 

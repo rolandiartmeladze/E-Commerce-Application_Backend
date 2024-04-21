@@ -24,7 +24,8 @@ async function createNewUser(userData) {
                         phone: userData.phone,
                         password: hashedPassword,
                         address: userData.address,
-                        products: []
+                        products: [],
+                        favorits:[]
                     });
 
                         // ობიექტი ინახება მონაცემთა ბაზაში

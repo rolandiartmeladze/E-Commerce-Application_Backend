@@ -183,6 +183,28 @@ app.post('/upload', upload.single('image'), (req, res) => {
                               }
                             }));
 
+
+                            // კატეგორიების მიხედვით გაფილტვრა
+                            app.get('/sortedcategory', asyncMiddleware(async (req, res) => {
+                                try {
+                                  const category = req.query.category;
+                                  const sortedProducts = await mongoose.connection.db.collection("products")
+                                        .find({ "category": category })
+                                        .toArray();
+
+                                  if (sortedProducts.length === 0) {
+                                    return res.status(404).json({ error: 'No products found for the given category' });
+                                  }
+                                
+                                  res.json(sortedProducts);
+
+                                } catch (error) {
+                                  console.log('not found')
+                                }
+                            }));
+
+
+
 // Catch-all route for handling undefined routes
 app.get("*", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
 

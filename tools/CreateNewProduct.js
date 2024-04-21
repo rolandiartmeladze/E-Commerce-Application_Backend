@@ -1,44 +1,26 @@
 const Product = require('../models/Product');
+const mongoose = require("mongoose");
 
-
-
-// ფუნქცია ქმნის ახალ მომხარებელს 
-// მონაცემტა ბაზის შესაბამის კოლექციაში
-
-async function CreateNewProduct(productData) {
+async function createNewProduct(productData) {
     try {
-        const { name, email, phone, address, img, price, quantity, quantityiunit, location, owner, sale, view, currency, comment, description } = productData;
-
-        const imageArray = img.map((image, index) => ({
-            url: image[`image/*${index}`]
-        }));
+        const {
+            name, email, phone, address, img, price, quantity, quantityiunit,
+            location, owner, sale, view, currency, comment, description, category, datatime
+        } = productData;
 
         const newProduct = new Product({
-            name: name,
-            email: email,
-            phone: phone,
-            address: address,
-            image: imageArray,
-            price: price,
-            quantity: quantity,
-            quantityUnit: quantityiunit,
-            location: location,
-            owner: owner,
-            sale: sale,
-            view: view,
-            currency: currency,
-            comment: comment,
-            description: description
+            name, email, phone, address, image: img,
+            price, quantity, quantityUnit: quantityiunit,
+            location, owner, sale, view, currency, 
+            comment, description, category, datatime
         });
 
         await newProduct.save();
 
-
-        
-        return newProduct;
+        return newProduct._id;
     } catch (error) {
         throw error;
     }
 }
 
-module.exports = CreateNewProduct;
+module.exports = createNewProduct;
