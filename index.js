@@ -203,6 +203,24 @@ app.post('/upload', upload.single('image'), (req, res) => {
                                 }
                             }));
 
+                                // პროდუქტის მნახველთა რადენობის განახლება
+
+                                app.post('/updateView/:id', asyncMiddleware(async (req, res) => {
+
+                                  try {
+                                    const productId = req.params.id;
+                                    const product = await mongoose.connection.db.collection("products").updateOne(
+                                      { _id: new ObjectId(productId) },
+                                      { $inc: { view: 1 } }
+                                  );
+
+
+                                    res.json({product});
+                                  } catch (error) {
+                                    
+                                  }
+
+                                }))
 
 
 // Catch-all route for handling undefined routes
