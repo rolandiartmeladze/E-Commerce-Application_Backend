@@ -214,8 +214,10 @@ app.post('/upload', upload.single('image'), (req, res) => {
                                       { $inc: { view: 1 } }
                                   );
 
+                                  const viewProduct = await mongoose.connection.db.collection("products").findOne({ _id: new ObjectId(productId) });
 
-                                    res.json({product});
+
+                                    res.json(viewProduct);
                                   } catch (error) {
                                     
                                   }

@@ -5,14 +5,16 @@ async function createNewProduct(productData) {
     try {
         const {
             name, email, phone, address, img, price, quantity, quantityiunit,
-            location, owner, sale, view, currency, comment, description, category, datatime
+            location, owner, sale, view, currency, comment, description, 
+            category, datatime, share, id
         } = productData;
 
         const newProduct = new Product({
             name, email, phone, address, image: img,
             price, quantity, quantityUnit: quantityiunit,
             location, owner, sale, view, currency, 
-            comment, description, category, datatime
+            comment, description, category, 
+            datatime, share, id
         });
 
         await newProduct.save();

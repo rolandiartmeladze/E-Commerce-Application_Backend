@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
+    id: { type: String, required: true },
     name: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
@@ -9,6 +10,7 @@ const productSchema = new mongoose.Schema({
     sale: { type: Number, required: true, default: 0 },
     location: { type: String, required: true },
     view: { type: Number, required: true, default: 0 },
+    share: { type: Number, required: true, default: 0 },
     image: { type: [{ url: String }], required: true, default: [] },
     price: { type: Number, required: true, default: 0 },
     quantity: { type: Number, required: true, default: 0 },
