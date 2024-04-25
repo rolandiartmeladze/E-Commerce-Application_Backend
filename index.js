@@ -24,18 +24,28 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public'))); 
 
+
+let Users;
+let Products;
+
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => { console.log("Connected to MongoDB");
     app.listen(PORT, () => {console.log(`Backend server is running on port ${PORT}`);});
+    Users = mongoose.connection.db.collection("users");
+    Products = mongoose.connection.db.collection("products");
   })
   .catch(error => console.error("Error connecting to MongoDB:", error));
+
 
 // Middleware to handle async errors
 const asyncMiddleware = fn => (req, res, next) => {Promise.resolve(fn(req, res, next)).catch(next);};
 
 // Define routes
 app.get("/", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
+
+
+
 
 
 const storage = multer.diskStorage({
@@ -206,24 +216,83 @@ app.post('/upload', upload.single('image'), (req, res) => {
                                 // პროდუქტის მნახველთა რადენობის განახლება
 
                                 app.post('/updateView/:id', asyncMiddleware(async (req, res) => {
+                                        try {
+                                          const productId = req.params.id;
+                                          const product = await Products.updateOne(
+                                            { _id: new ObjectId(productId) },
+                                            { $inc: { view: 1 } }
+                                        );
 
-                                  try {
-                                    const productId = req.params.id;
-                                    const product = await mongoose.connection.db.collection("products").updateOne(
-                                      { _id: new ObjectId(productId) },
-                                      { $inc: { view: 1 } }
-                                  );
-
-                                  const viewProduct = await mongoose.connection.db.collection("products").findOne({ _id: new ObjectId(productId) });
+                                        const viewProduct = await Products.findOne({ _id: new ObjectId(productId) });
 
 
-                                    res.json(viewProduct);
-                                  } catch (error) {
-                                    
-                                  }
+                                          res.json(viewProduct);
+                                        } catch (error) {
+                                            res.status(500).send(error).json()
+                                        }
 
                                 }))
 
+
+                                
+                      
+                      
+                                    // ეს მოთხოვნა აბრინებს მონაცემთა ბაზიდან მომხმარებლის მიერ 
+                                    // კალათაში დამატებულ პროდუცტებს
+                                app.post('/checkCartItems', asyncMiddleware(async (req, res) =>{
+                                    try {
+                                        const incart = req.body.incart;
+
+                                      const product = await Products.find().toArray();
+                                      const productsInCart = product.filter(item => incart.includes(String(item._id)));
+
+                                      console.log(productsInCart);
+                                      
+                                      res.json(productsInCart);
+
+                                    } catch (error) {
+                                      
+                                    }
+                                }))
+
+
+                                      // ეს მოთხოვნა ანახლებს მომხმარებლის მიერ პროდუქტის კალათაში დამატებას 
+                                      //ან დამატებული პროდუცტის კალათიდან წაშლას
+                                  app.post('/addCarItem/:id', asyncMiddleware(async (req, res) => {
+                                    try {                                    
+                                      const userID = req.params.id;
+                                      const productID = req.body.itemId;
+
+                                     const user = await Users.findOne({ _id: new ObjectId(userID) });
+
+                                      if (user.incart) { 
+                                          const index = user.incart.indexOf(productID);
+                                        if (index === -1) { 
+                                          await Users.updateOne(
+                                            { _id: new ObjectId(userID) }, 
+                                            { $push: { incart: productID } }
+                                          ); 
+                                        } else { 
+                                            await Users.updateOne(
+                                              { _id: new ObjectId(userID) }, 
+                                              { $pull: { incart: productID } }
+                                            ); 
+                                          }
+                                      } else { 
+                                          await Users.updateOne(
+                                            { _id: new ObjectId(userID) }, 
+                                            { $set: { incart: [productID] } }
+                                          ); 
+                                        }
+                                            const updateduser = await Users.findOne({_id : new ObjectId(userID)});
+                                            const updatedincart = updateduser.incart;
+
+                                     res.json(updatedincart);
+
+                                    } catch (error) {
+                                      
+                                    }
+                                  }))
 
 // Catch-all route for handling undefined routes
 app.get("*", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
