@@ -11,6 +11,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 // Import utility functions
 const createNewUser = require("./tools/CreateNewUser");
 const createNewProduct = require("./tools/CreateNewProduct");
+const { find } = require("./models/User");
 
 const link = 'mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/my-shop';
 
@@ -195,23 +196,49 @@ app.post('/upload', upload.single('image'), (req, res) => {
 
 
                             // კატეგორიების მიხედვით გაფილტვრა
-                            app.get('/sortedcategory', asyncMiddleware(async (req, res) => {
-                                try {
-                                  const category = req.query.category;
-                                  const sortedProducts = await mongoose.connection.db.collection("products")
-                                        .find({ "category": category })
-                                        .toArray();
+app.get('/sortedcategory', asyncMiddleware(async (req, res) => {
+                              // const category = req.query.category;
 
-                                  if (sortedProducts.length === 0) {
-                                    return res.status(404).json({ error: 'No products found for the given category' });
-                                  }
+                              
+  try {
+                                const time = req.query.time;
+                                const {category, view} = req.query;
+
+                            let products = await Products.find().toArray();
+
+                        const sortedCategory = async () =>{
+                              return products = await Products.find({ "category": category }).toArray();
+                            }
+
+                    const sortedview = async () =>{
+                          let result = null;
+                            if(view === "Most View"){
+                              result = products.sort((a, b) => b.view - a.view);
+                            }
+                            else if(view === "Less View"){
+                              result = products.sort((a, b) =>  a.view - b.view);
+                            }
+                          return products = result;
+                        }
+
+                const sorted = async () => {
+                      if(category || view ||  time){
+                        category && await sortedCategory();
+                        view && await sortedview();
+                      }
+                    return await products;
+                
+                  }
+
+            const sortedProducts = await sorted();
+
+        if (products.length === 0) { return res.status(404).json({ error: 'No products' });}
+        res.json(sortedProducts);
+
+      } catch (error) {console.log('not found')};
+
                                 
-                                  res.json(sortedProducts);
-
-                                } catch (error) {
-                                  console.log('not found')
-                                }
-                            }));
+  }));
 
                                 // პროდუქტის მნახველთა რადენობის განახლება
 
