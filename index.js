@@ -5,6 +5,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
+const fs = require("fs");
 require('dotenv').config();
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -46,38 +47,24 @@ const asyncMiddleware = fn => (req, res, next) => {Promise.resolve(fn(req, res, 
 app.get("/", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
 
 
-
-
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-      cb(null, './media'); // Save files to the './media' directory
-  },
-  filename: function (req, file, cb) {
-      cb(null, file.originalname); 
-  }
-});
-
-// Create multer instance with storage configuration
-const upload = multer({ storage: storage });
-
-
-// მოთხოვნა ინახავს მომხმარებლის მიერ არჩეულ ფოტოს ძირითად საქაღალდეში ./media
-
-app.post('/upload', upload.single('image'), (req, res) => {
+app.post('/addImage/:id', asyncMiddleware(async (req, res) => {
   try {
-      if (!req.file) {
-          return res.status(400).json({ message: 'No file uploaded' });
-      }
-      console.log('File uploaded successfully:', req.file.originalname);
-      res.status(200).json({ message: 'წარმატებით აიტვირთა' });
+    const productId = req.params.id;
+    const array = req.body;
+    const product = await Products.updateOne(
+      { _id: new ObjectId(productId) },
+      { $push: { image: { $each: array } } }
+      );
+
+  const viewProduct = await Products.findOne({ _id: new ObjectId(productId) });
+
+
+    res.json(viewProduct);
   } catch (error) {
-      console.error('Error uploading file:', error);
-      res.status(500).json({ message: 'Error uploading file' });
+      res.status(500).send(error).json()
   }
 
-});
-
+}));
 
 
 // მოთხოვნა ამოწმებს ბაზაში არსბულ უნუკალურ მომხმარებლებს
@@ -101,6 +88,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
             );
             res.status(201).json(newProduct._id);
           }));
+
 
 
 
@@ -147,22 +135,56 @@ app.post('/upload', upload.single('image'), (req, res) => {
                     else { res.status(404).json({ message: "No products found" });}
               }));
 
+
+              app.get("/Main/:id", asyncMiddleware(async (req, res) => {
+
+                try {
+                const userID = req.params.id;
+                
+                        const user = await Users.findOne({ _id: new ObjectId(userID) });
+                        const products = user.products;
+
+                            const productIds = products.map(productId => new ObjectId(productId));
+                            const MainProduct = await Products.find({ _id: { $in: productIds } }).toArray();
+
+                res.status(200).json(MainProduct);
+              } catch (error) {
+                  
+                }
+              }));
+
                 //  მოთხოვნა ამოწმებს მომხმარებლის მიერ საძიები ველში 
                 //  შეყვანილ მონაცემებს ბაზაში არსებულ მონაცემებთან 
                 // აბრუნებს დადებით შედეგს
-                  app.get('/findProduct', asyncMiddleware(async (req, res) => {
-                                  try {
-                                      const findInput = req.query.FindInput; 
-                                          if (!findInput) {return res.status(400).json({ error: 'Enter a search term' });}
-                                      const products = await mongoose.connection.db.collection("products")
-                                          .find({ "name": { $regex: findInput, $options: 'i' } }) 
-                                          .toArray();
-                                      res.status(200).json(products);
-                                  } catch (error) {
-                                      console.error('Error filtering products:', error);
-                                      res.status(500).json({ error: 'Internal server error' });
-                                  }
-                          }));
+                  // app.get('/findProduct', asyncMiddleware(async (req, res) => {
+                  //                 try {
+                  //                     const findInput = req.query.FindInput; 
+                  //                         if (!findInput) {return res.status(400).json({ error: 'Enter a search term' });}
+                  //                     const products = await mongoose.connection.db.collection("products")
+                  //                         .find({ "name": { $regex: findInput, $options: 'i' } }) 
+                  //                         .toArray();
+                  //                     res.status(200).json(products);
+                  //                 } catch (error) {
+                  //                     console.error('Error filtering products:', error);
+                  //                     res.status(500).json({ error: 'Internal server error' });
+                  //                 }
+                  //         }));
+
+
+                          app.get('/Find', asyncMiddleware(async (req, res) => {
+                            try {
+                                const findInput = req.query.Find; 
+                                    if (!findInput) {return res.status(400).json({ error: 'Enter a search term' });}
+                                const products = await mongoose.connection.db.collection("products")
+                                    .find({ "name": { $regex: findInput, $options: 'i' } }) 
+                                    .toArray();
+                                res.status(200).json(products);
+                            } catch (error) {
+                                console.error('Error filtering products:', error);
+                                res.status(500).json({ error: 'Internal server error' });
+                            }
+                    }));
+
 
                     // ამოწმებს მომხმარებლის მიერ შეყვანილ მეილსა და პაროლს ბაზაში არსებულ მონაცემებთან 
                     //აბრუნებს მომხმარებლის მონაცმებს და ქმნის შესაბამის ნონაცემებს ლოკალურ მეხსიერებაში
@@ -197,9 +219,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
 
                             // კატეგორიების მიხედვით გაფილტვრა
 app.get('/sortedcategory', asyncMiddleware(async (req, res) => {
-                              // const category = req.query.category;
 
-                              
   try {
                                 const time = req.query.time;
                                 const {category, view} = req.query;

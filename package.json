@@ -1,5 +1,5 @@
 {
-  "name": "journal-accounting-backend",
+  "name": "E-Commerce-Application_Backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rolandiartmeladze/Journal-Accounting-Backend.git"
+    "url": "git+https://github.com/rolandiartmeladze/E-Commerce-Application_Backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/rolandiartmeladze/Journal-Accounting-Backend/issues"
+    "url": "https://github.com/rolandiartmeladze/E-Commerce-Application_Backend/issues"
   },
-  "homepage": "https://github.com/rolandiartmeladze/Journal-Accounting-Backend#readme",
+  "homepage": "https://github.com/rolandiartmeladze/E-Commerce-Application_Backend#readme",
   "dependencies": {
     "@vercel/speed-insights": "^1.0.10",
     "axios": "^1.6.8",

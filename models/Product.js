@@ -11,7 +11,6 @@ const productSchema = new mongoose.Schema({
     location: { type: String, required: true },
     view: { type: Number, required: true, default: 0 },
     share: { type: Number, required: true, default: 0 },
-    image: { type: [{ url: String }], required: true, default: [] },
     price: { type: Number, required: true, default: 0 },
     quantity: { type: Number, required: true, default: 0 },
     quantityUnit: { type: String, required: true },
@@ -20,7 +19,9 @@ const productSchema = new mongoose.Schema({
     description:  { type: String, required: true },
     category: { type: String, required: true },
     datatime: { type: String, required: true },
-    img: { type: Array, required: true }
+    image: { type: [{ url: String }], required: true, default: [] },
+    userID: { type: String, required: true },
+
 
 
 });
