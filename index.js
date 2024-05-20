@@ -2,7 +2,10 @@
 const express = require("express");
 
 const saleRoutes = require('./routes/saleRoutes');
-
+const mainRoutes = require('./routes/mainRoutes');
+const careRoutes = require('./routes/cartRoutes');
+const sortRoutes = require('./routes/sortRoutes');
+const findRoutes = require('./routes/findRoutes');
 
 const cors = require("cors");
 const path = require("path");
@@ -43,11 +46,13 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
   })
   .catch(error => console.error("Error connecting to MongoDB:", error));
 
-
-
   app.use('/api', saleRoutes);
+  app.use('/api', mainRoutes);
+  app.use('/api', careRoutes);
+  app.use('/api', sortRoutes);
+  app.use('/api', findRoutes);
+  
 
-// Middleware to handle async errors
 const asyncMiddleware = fn => (req, res, next) => {Promise.resolve(fn(req, res, next)).catch(next);};
 
 // Define routes
@@ -96,9 +101,6 @@ app.post("/createProduct", asyncMiddleware(async (req, res) => {
     res.status(201).json(newProduct._id);
 }));
 
-
-
-
           // მომხმარებლის მიერ სასურველი პროდუქტტტის ფავრიტად მონიშვნა
 app.post("/FavoritProduct", asyncMiddleware(async (req, res) => {
 const userId = req.body.userId;
@@ -134,50 +136,12 @@ res.status(200).json(favoritsFromBackend);
 console.log("Updated Favorits:", favoritsFromBackend);
 }));
 
-
             // ამოწმებს ბაზაში პროდუქტების არსებობას და აბრუნებს შესაბამის შედეგს
 app.get("/checkProducts", asyncMiddleware(async (req, res) => {
-const products = await mongoose.connection.db.collection("products").find().toArray();
+const products = await Products.find().toArray();
 if (products.length > 0) { res.status(200).json(products); } 
 else { res.status(404).json({ message: "No products found" });}
 }));
-
-
-app.get("/Main/:id", asyncMiddleware(async (req, res) => {
-
-try {
-const userID = req.params.id;
-
-const user = await Users.findOne({ _id: new ObjectId(userID) });
-const products = user.products;
-
-const productIds = products.map(productId => new ObjectId(productId));
-const MainProduct = await Products.find({ _id: { $in: productIds } }).toArray();
-
-res.status(200).json(MainProduct);
-} catch (error) {
-
-}
-}));
-
-                //  მოთხოვნა ამოწმებს მომხმარებლის მიერ საძიები ველში 
-                //  შეყვანილ მონაცემებს ბაზაში არსებულ მონაცემებთან 
-                // აბრუნებს დადებით შედეგს
-
-app.get('/Find', asyncMiddleware(async (req, res) => {
-try {
-const findInput = req.query.Find; 
-if (!findInput) {return res.status(400).json({ error: 'Enter a search term' });}
-const products = await mongoose.connection.db.collection("products")
-.find({ "name": { $regex: findInput, $options: 'i' } }) 
-.toArray();
-res.status(200).json(products);
-} catch (error) {
-console.error('Error filtering products:', error);
-res.status(500).json({ error: 'Internal server error' });
-}
-}));
-
 
                     // ამოწმებს მომხმარებლის მიერ შეყვანილ მეილსა და პაროლს ბაზაში არსებულ მონაცემებთან 
                     //აბრუნებს მომხმარებლის მონაცმებს და ქმნის შესაბამის ნონაცემებს ლოკალურ მეხსიერებაში
@@ -193,156 +157,42 @@ console.error('Login error:', error);
 res.status(500).json({ message: "Internal Server Error" });
 }
 });
-
                         // მოთხოვნა ამოწმებს და აბრუნებს ავტორიზებულ მომხარებელს
 app.get('/user', asyncMiddleware(async (req, res) => {
-const token = req.query.token; 
-if (!token) {return res.status(401).json({ message: 'Token is required' });}
-try {                            
-const user = await mongoose.connection.db.collection("users").find().toArray();
-const activeUser = user.find(activ => activ._id.equals(token)); 
-if (!user) {return res.status(404).json({ message: 'User not found' });}
-res.json(activeUser);
-} catch (error) {
-console.error('Error retrieving user data:', error);
-res.status(500).json({ message: 'Internal server error' });
-}
+  const token = req.query.token; 
+  if (!token) {return res.status(401).json({ message: 'Token is required' });}
+  try {                            
+  const user = await mongoose.connection.db.collection("users").find().toArray();
+  const activeUser = user.find(activ => activ._id.equals(token)); 
+  if (!user) {return res.status(404).json({ message: 'User not found' });}
+  res.json(activeUser);
+  } catch (error) {
+  console.error('Error retrieving user data:', error);
+  res.status(500).json({ message: 'Internal server error' });
+  }
 }));
-
-
-                            // კატეგორიების მიხედვით გაფილტვრა
-app.get('/sortedcategory', asyncMiddleware(async (req, res) => {
-
-try {
-const time = req.query.time;
-const {category, view} = req.query;
-
-let products = await Products.find().toArray();
-
-const sortedCategory = async () =>{
-return products = await Products.find({ "category": category }).toArray();
-}
-
-const sortedview = async () =>{
-let result = null;
-if(view === "Most View"){
-result = products.sort((a, b) => b.view - a.view);
-}
-else if(view === "Less View"){
-result = products.sort((a, b) =>  a.view - b.view);
-}
-return products = result;
-}
-
-const sorted = async () => {
-if(category || view ||  time){
-category && await sortedCategory();
-view && await sortedview();
-}
-return await products;
-
-}
-
-const sortedProducts = await sorted();
-
-if (products.length === 0) { return res.status(404).json({ error: 'No products' });}
-res.json(sortedProducts);
-
-} catch (error) {console.log('not found')};
-
-
-}));
-
-                                // პროდუქტის მნახველთა რადენობის განახლება
 
 app.post('/updateView/:id', asyncMiddleware(async (req, res) => {
-try {
-const productId = req.params.id;
-const product = await Products.updateOne(
-{ _id: new ObjectId(productId) },
-{ $inc: { view: 1 } }
-);
-
-const viewProduct = await Products.findOne({ _id: new ObjectId(productId) });
-
-
-res.json(viewProduct);
-} catch (error) {
-res.status(500).send(error).json()
-}
-
+    try {
+      const productId = req.params.id;
+          const product = await Products.updateOne(
+            { _id: new ObjectId(productId) },
+            { $inc: { view: 1 } }
+          );
+        const viewProduct = await Products.findOne({ _id: new ObjectId(productId) });
+      res.json(viewProduct);
+    } catch (error) {res.status(500).send(error).json()}
 }))
 
-
-                                
-                      
-                      
-                                    // ეს მოთხოვნა აბრინებს მონაცემთა ბაზიდან მომხმარებლის მიერ 
-                                    // კალათაში დამატებულ პროდუცტებს
 app.post('/checkCartItems', asyncMiddleware(async (req, res) =>{
-try {
-const incart = req.body.incart;
-
-const product = await Products.find().toArray();
-const productsInCart = product.filter(item => incart.includes(String(item._id)));
-
-console.log(productsInCart);
-
-res.json(productsInCart);
-
-} catch (error) {
-
-}
+    try {
+        const incart = req.body.incart;
+        const product = await Products.find().toArray();
+        const productsInCart = product.filter(item => incart.includes(String(item._id)));
+      res.json(productsInCart);
+    } catch (error) {}
 }))
 
-
-                                      // ეს მოთხოვნა ანახლებს მომხმარებლის მიერ პროდუქტის კალათაში დამატებას 
-                                      //ან დამატებული პროდუცტის კალათიდან წაშლას
-app.post('/addCarItem/:id', asyncMiddleware(async (req, res) => {
-try {                                    
-const userID = req.params.id;
-const productID = req.body.itemId;
-
-const user = await Users.findOne({ _id: new ObjectId(userID) });
-
-if (user.incart) { 
-const index = user.incart.indexOf(productID);
-if (index === -1) { 
-await Users.updateOne(
-{ _id: new ObjectId(userID) }, 
-{ $push: { incart: productID } }
-); 
-} else { 
-await Users.updateOne(
-{ _id: new ObjectId(userID) }, 
-{ $pull: { incart: productID } }
-); 
-}
-} else { 
-await Users.updateOne(
-{ _id: new ObjectId(userID) }, 
-{ $set: { incart: [productID] } }
-); 
-}
-const updateduser = await Users.findOne({_id : new ObjectId(userID)});
-const updatedincart = updateduser.incart;
-
-res.json(updatedincart);
-
-} catch (error) {
-
-}
-}))
-
-
-
-
-
-// Catch-all route for handling undefined routes
 app.get("*", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
-
-  // Error handling middleware
   app.use((err, req, res, next) => { console.error(err.stack);
     res.status(500).json({ message: "Internal Server Error" });});
-
-    

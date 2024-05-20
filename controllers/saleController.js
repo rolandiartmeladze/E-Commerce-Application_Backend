@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const ObjectId = require("mongoose").Types.ObjectId;
 
-const updateSale = async (req, res) => {
+const updateSale = async (req, res, next) => {
   try {
         const Users = mongoose.connection.db.collection("users");
         const Products = mongoose.connection.db.collection("products");
@@ -34,7 +34,9 @@ const updateSale = async (req, res) => {
             );
 
     res.status(200).json({message: 'It was successfully sold', name, amount});
+    next();
   } catch (error) {
+    next(error);
     console.error('Error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
