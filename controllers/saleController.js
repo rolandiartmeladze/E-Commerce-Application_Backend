@@ -5,9 +5,8 @@ const updateSale = async (req, res, next) => {
   try {
         const Users = mongoose.connection.db.collection("users");
         const Products = mongoose.connection.db.collection("products");
-
-    const {name,price,amount,time,currency,unit,product} = req.body;
-    const saleInfo = {name,price,amount,currency,unit,time,};
+    const {name,price,amount,currency,unit,product,img} = req.body;
+    const saleInfo = {id:product,name,price,amount,currency,unit,time:new Date(),img};
       const user = req.params.id;
         const userId = new ObjectId(user);
 

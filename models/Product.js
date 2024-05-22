@@ -1,3 +1,4 @@
+const { toFormData } = require("axios");
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
@@ -18,7 +19,7 @@ const productSchema = new mongoose.Schema({
     comment:  { type: String, required: true },
     description:  { type: String, required: true },
     category: { type: String, required: true },
-    datatime: { type: String, required: true },
+    datatime: { type: Date, required: true, default: Date.now },
     image: { type: [{ url: String }], required: true, default: [] },
     userID: { type: String, required: true },
 

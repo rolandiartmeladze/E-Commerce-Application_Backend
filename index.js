@@ -193,6 +193,25 @@ app.post('/checkCartItems', asyncMiddleware(async (req, res) =>{
     } catch (error) {}
 }))
 
+
+
+app.get('/salejurnal/:id', asyncMiddleware(async (req, res)=>{
+
+      try {
+
+        const query = req.query.sort;
+        const userId = new ObjectId(req.params.id);
+        const user = await Users.findOne({ _id: userId });
+        if (user && Array.isArray(user.SalesJournal)) { user.SalesJournal.sort((a, b) => new Date(b.time) - new Date(a.time)); }
+       console.log(query); 
+       res.json(user.SalesJournal); } 
+        
+        catch (error) {
+          console.error('Error fetching user:', error);
+          res.status(500).json({ message: 'Internal server error' });
+        }
+}));
+
 app.get("*", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
   app.use((err, req, res, next) => { console.error(err.stack);
     res.status(500).json({ message: "Internal Server Error" });});

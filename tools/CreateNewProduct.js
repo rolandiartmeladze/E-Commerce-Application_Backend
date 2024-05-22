@@ -6,7 +6,7 @@ async function createNewProduct(productData) {
         const {
             name, email, phone, address, img, price, quantity, quantityiunit,
             location, owner, sale, view, currency, comment, description, 
-            category, datatime, share, id, userID
+            category, share, id, userID
         } = productData;
 
         const newProduct = new Product({
@@ -14,11 +14,12 @@ async function createNewProduct(productData) {
             price, quantity, quantityUnit: quantityiunit,
             location, owner, sale, view, currency, 
             comment, description, category, 
-            datatime, share, id, userID
+             share, id, userID
         });
 
         await newProduct.save();
 
+        
         return newProduct._id;
     } catch (error) {
         throw error;

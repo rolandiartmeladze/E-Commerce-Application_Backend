@@ -2,53 +2,47 @@ const mongoose = require('mongoose');
 const ObjectId = require("mongoose").Types.ObjectId;
 
 const sorted = async (req, res, next) => {
-
     try {
-        
         const Products = mongoose.connection.db.collection("products");
+        const { category, view, time } = req.query;
 
-        const time = req.query.time;
-const {category, view} = req.query;
+        let query = {};
+        if (category) {
+            query.category = category;
+        }
 
-let products = await Products.find().toArray();
+        let sortOptions = {};
+        if (view) {
+            if (view === "Most View") {
+                sortOptions.view = -1;
+            } else if (view === "Less View") {
+                sortOptions.view = 1;
+            }
+        }
 
-const sortedCategory = async () =>{
-return products = await Products.find({ "category": category }).toArray();
-}
+        if (time) {
+            if (time === "Newest") {
+                sortOptions.datatime = -1;
+            } else if (time === "Oldest") {
+                sortOptions.datatime = 1;
+            }
+        }
 
-const sortedview = async () =>{
-let result = null;
-if(view === "Most View"){
-result = products.sort((a, b) => b.view - a.view);
-}
-else if(view === "Less View"){
-result = products.sort((a, b) =>  a.view - b.view);
-}
-return products = result;
-}
+        // Fetch and sort products based on query and sort options
+        let products = await Products.find(query).sort(sortOptions).toArray();
 
-const sorted = async () => {
-if(category || view ||  time){
-category && await sortedCategory();
-view && await sortedview();
-}
-return await products;
+        if (products.length === 0) {
+            return res.status(404).json({ error: 'No products' });
+        }
 
-}
-
-const sortedProducts = await sorted();
-
-if (products.length === 0) { return res.status(404).json({ error: 'No products' });}
-res.json(sortedProducts);
-
-
-    next();
+        res.json(products);
     } catch (error) {
-        next(error);
         console.error('Error:', error);
         res.status(500).json({ message: 'Internal Server Error' });
-    
+    } finally {
+        next();
     }
+};
 
-}
+
     module.exports = { sorted };
