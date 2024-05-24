@@ -6,6 +6,7 @@ const mainRoutes = require('./routes/mainRoutes');
 const careRoutes = require('./routes/cartRoutes');
 const sortRoutes = require('./routes/sortRoutes');
 const findRoutes = require('./routes/findRoutes');
+const jurnalRoutes = require('./routes/jurnalRoutes');
 
 const cors = require("cors");
 const path = require("path");
@@ -51,6 +52,7 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
   app.use('/api', careRoutes);
   app.use('/api', sortRoutes);
   app.use('/api', findRoutes);
+  app.use('/api', jurnalRoutes);
   
 
 const asyncMiddleware = fn => (req, res, next) => {Promise.resolve(fn(req, res, next)).catch(next);};
@@ -195,22 +197,58 @@ app.post('/checkCartItems', asyncMiddleware(async (req, res) =>{
 
 
 
-app.get('/salejurnal/:id', asyncMiddleware(async (req, res)=>{
+// app.get('/salejurnal/:id', asyncMiddleware(async (req, res)=>{
 
-      try {
+//       try {
+//         const query = req.query.sort;
+//         const userId = new ObjectId(req.params.id);
+//         const user = await Users.findOne({ _id: userId });
+//         const time = new Date();
 
-        const query = req.query.sort;
-        const userId = new ObjectId(req.params.id);
-        const user = await Users.findOne({ _id: userId });
-        if (user && Array.isArray(user.SalesJournal)) { user.SalesJournal.sort((a, b) => new Date(b.time) - new Date(a.time)); }
-       console.log(query); 
-       res.json(user.SalesJournal); } 
-        
-        catch (error) {
-          console.error('Error fetching user:', error);
-          res.status(500).json({ message: 'Internal server error' });
-        }
-}));
+//         if( query === "All"){
+//           if (user && Array.isArray(user.SalesJournal)) { 
+//               user.SalesJournal.sort((a, b) => new Date(b.time) - new Date(a.time)); 
+//             }
+//            res.json(user.SalesJournal); 
+//          } 
+
+//             if( query === "day"){
+//               time.setHours(0, 0, 0, 0);
+//                 const todaySales = user.SalesJournal.filter(entry => {
+//                   const entryDate = new Date(entry.time);
+//                   return entryDate >= time;
+//                 });
+//               res.json(todaySales);
+
+//              }
+
+//           if( query === "week"){
+//                 time.setDate(time.getDate() - 7);
+//                 time.setHours(0, 0, 0, 0); 
+
+//             const weekSale = user.SalesJournal.filter(entry => {
+//                 const entryDate = new Date(entry.time);
+//                 return entryDate >= time;
+//             });
+
+//             res.json(weekSale);
+//           }
+
+//         if( query === "month"){
+//               time.setMonth(time.getMonth() - 1);
+//               time.setHours(0, 0, 0, 0);
+//             const monthSale = user.SalesJournal.filter(entry => {
+//               const entryDate = new Date(entry.time);
+//               return entryDate >= time;
+//             });
+//           res.json(monthSale);            
+//         }
+//       }  
+//         catch (error) {
+//           console.error('Error fetching user:', error);
+//           res.status(500).json({ message: 'Internal server error' });
+//         }
+// }));
 
 app.get("*", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
   app.use((err, req, res, next) => { console.error(err.stack);
