@@ -1,4 +1,3 @@
-
 const express = require("express");
 
 const saleRoutes = require('./routes/saleRoutes');
@@ -12,8 +11,16 @@ const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const multer = require("multer");
-const fs = require("fs");
+
+
+
+const crypto = require('crypto');
+const transporter = require('./tools/emailConfig');
+
+
+
+// const multer = require("multer");
+// const fs = require("fs");
 require('dotenv').config();
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -33,6 +40,47 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public'))); 
+
+
+const asyncMiddleware = fn => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+
+
+
+
+
+app.post('/verifi', asyncMiddleware(async (req, res) => {
+  try {
+    const { email } = req.body; // Get email from request body
+
+    // Generate a 4-digit verification code
+    const verificationCode = crypto.randomBytes(2).toString('hex').toUpperCase();
+
+    // Set up mail options
+    const mailOptions = {
+      from: 'rartmeladze@gmail.com',
+      to: email,
+      subject: 'Email Verification',
+      text: `Your verification code is ${verificationCode}`
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+
+    console.log(`Email sent to: ${email}`);
+    res.status(200).json({ message: 'Verification email sent.' });
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    res.status(500).json({ message: 'Failed to send verification email.' });
+  }
+}));
+
+
+
+
+
 
 
 let Users;
@@ -55,7 +103,6 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
   app.use('/api', jurnalRoutes);
   
 
-const asyncMiddleware = fn => (req, res, next) => {Promise.resolve(fn(req, res, next)).catch(next);};
 
 // Define routes
 app.get("/", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
@@ -195,6 +242,20 @@ app.post('/checkCartItems', asyncMiddleware(async (req, res) =>{
     } catch (error) {}
 }))
 
+
+
+// app.post('/verifimeil', asyncMiddleware(async (req, res) =>{
+//     try {
+//       const { email } = req.body;
+//       console.log(email);
+   
+//       res.status(200).json({ message: 'Email received successfully' });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).json({ message: 'Internal server error' });
+//     }
+
+// }));
 
 
 // app.get('/salejurnal/:id', asyncMiddleware(async (req, res)=>{
