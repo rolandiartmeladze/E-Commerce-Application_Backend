@@ -5,7 +5,6 @@ const cart = async (req, res, next) => {
 
     try {
         const Users = mongoose.connection.db.collection("users");
-        const Products = mongoose.connection.db.collection("products");
 
         const userID = req.params.id;
         const productID = req.body.itemId;
@@ -35,7 +34,6 @@ const cart = async (req, res, next) => {
         const updatedincart = updateduser.incart;
         
         res.json(updatedincart);
-        console.log('working')
         next();
     } catch (error) {
         next(error);

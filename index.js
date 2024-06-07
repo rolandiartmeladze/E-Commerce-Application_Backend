@@ -28,6 +28,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const createNewUser = require("./tools/CreateNewUser");
 const createNewProduct = require("./tools/CreateNewProduct");
 const { find } = require("./models/User");
+const User = require("./models/User");
 
 const link = 'mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/my-shop';
 
@@ -76,6 +77,7 @@ app.post('/verifi', asyncMiddleware(async (req, res) => {
     res.status(500).json({ message: 'Failed to send verification email.' });
   }
 }));
+
 
 
 
@@ -242,6 +244,40 @@ app.post('/checkCartItems', asyncMiddleware(async (req, res) =>{
     } catch (error) {}
 }))
 
+
+
+
+app.post('/favoriteItem/:id', asyncMiddleware(async (req, res) => {
+  const userID = new ObjectId(req.params.id);
+  const productID = req.body.itemId;
+
+  const check = { _id: userID };
+
+  try {
+      const user = await Users.findOne(check);
+      const favorites = user.favorites;
+
+      if (favorites) {
+          const index = favorites.indexOf(productID);
+          if (index === -1) {
+              await Users.updateOne(check, { $push: { favorites: productID } });
+          } else {
+              await Users.updateOne(check, { $pull: { favorites: productID } });
+          }
+      } else {
+          await Users.updateOne(check, { $set: { favorites: [productID] } });
+      }
+
+      const result = await Users.findOne(check);
+      const updatedFavorites = result.favorites;
+      res.json(updatedFavorites);
+      console.log(updatedFavorites);
+
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+}));
 
 
 // app.post('/verifimeil', asyncMiddleware(async (req, res) =>{
