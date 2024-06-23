@@ -247,6 +247,23 @@ app.post('/checkCartItems', asyncMiddleware(async (req, res) =>{
 
 
 
+app.get('/MyInfo/:id', asyncMiddleware(async (req, res) => {
+  const id = new ObjectId(req.params.id);
+
+  try {
+      const myInfo = await Users.findOne({ _id: id });
+      if (!myInfo) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      res.json(myInfo);
+  } catch (error) {
+      console.error('Error fetching user info:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+}));
+
+
+
 app.post('/favoriteItem/:id', asyncMiddleware(async (req, res) => {
   const userID = new ObjectId(req.params.id);
   const productID = req.body.itemId;
