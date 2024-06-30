@@ -263,6 +263,22 @@ app.get('/MyInfo/:id', asyncMiddleware(async (req, res) => {
 }));
 
 
+app.post('/UpdateProfile/:id', asyncMiddleware(async (req, res) => {
+  const id = new ObjectId(req.params.id);
+  const avatarName = req.body.AvatarName;
+
+  try {
+    const MY = await Users.updateOne({ _id: id }, { $set: { avatar: [avatarName] } });
+    
+    const updated = await Users.findOne({ _id: id });
+    
+    console.log(updated);
+  } catch (error) {
+    
+  }
+
+}));
+
 
 app.post('/favoriteItem/:id', asyncMiddleware(async (req, res) => {
   const userID = new ObjectId(req.params.id);
