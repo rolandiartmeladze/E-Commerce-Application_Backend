@@ -265,14 +265,34 @@ app.get('/MyInfo/:id', asyncMiddleware(async (req, res) => {
 
 app.post('/UpdateProfile/:id', asyncMiddleware(async (req, res) => {
   const id = new ObjectId(req.params.id);
-  const avatarName = req.body.AvatarName;
+
+  
+
+  
 
   try {
-    const MY = await Users.updateOne({ _id: id }, { $set: { avatar: [avatarName] } });
+  const info = req.body.UpdateInfo;
+
+    // const updateFields = { };
+
+    const update = async (info)=>{
+          const MY = await Users.updateOne({ _id: id }, { $set: info });
+    }
+
+    info.map(item => {
+
+     const updateFields = item;
+
+     update(updateFields);
+
+    });
+
+
     
     const updated = await Users.findOne({ _id: id });
-    
-    console.log(updated);
+
+    res.json(updated);
+
   } catch (error) {
     
   }
