@@ -4,13 +4,13 @@ const mongoose = require("mongoose");
 async function createNewProduct(productData) {
     try {
         const {
-            name, email, phone, address, image, price, quantity, quantityiunit,
+            name, email, phone, address, price, quantity, quantityiunit,
             location, owner, sale, view, currency, comment, description, 
             category, share, id, userID
         } = productData;
 
         const newProduct = new Product({
-            name, email, phone, address, image,
+            name, email, phone, address,
             price, quantity, quantityUnit: quantityiunit,
             location, owner, sale, view, currency, 
             comment, description, category, 

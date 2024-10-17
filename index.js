@@ -7,6 +7,11 @@ const sortRoutes = require('./routes/sortRoutes');
 const findRoutes = require('./routes/findRoutes');
 const jurnalRoutes = require('./routes/jurnalRoutes');
 
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); 
+const fs = require("fs");
+
+
 const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -18,9 +23,11 @@ const crypto = require('crypto');
 const transporter = require('./tools/emailConfig');
 
 
+const bodyParser = require('body-parser');
+
+
 
 // const multer = require("multer");
-// const fs = require("fs");
 require('dotenv').config();
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -29,6 +36,7 @@ const createNewUser = require("./tools/CreateNewUser");
 const createNewProduct = require("./tools/CreateNewProduct");
 const { find } = require("./models/User");
 const User = require("./models/User");
+const image = require("./models/image");
 
 const link = 'mongodb+srv://rartmeladze:rartmeladze@cluster0.ngnskbi.mongodb.net/my-shop';
 
@@ -42,6 +50,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public'))); 
 
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
 
 const asyncMiddleware = fn => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -54,7 +65,7 @@ const asyncMiddleware = fn => (req, res, next) => {
 
 app.post('/verifi', asyncMiddleware(async (req, res) => {
   try {
-    const { email } = req.body; // Get email from request body
+    const { email } = req.body; 
 
     // Generate a 4-digit verification code
     const verificationCode = crypto.randomBytes(2).toString('hex').toUpperCase();
@@ -110,25 +121,48 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
 app.get("/", (req, res) => {res.sendFile(path.join(__dirname, "public", "index.html"));});
 
 
-app.post('/addImage/:id', asyncMiddleware(async (req, res) => {
+
+
+
+app.post('/addImage/:id', upload.array('images'), async (req, res) => {
   try {
     const productId = req.params.id;
-    const array = req.body;
-    const product = await Products.updateOne(
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+
+    console.log('Uploaded files:', files);
+
+    const base64Images = files.map(file => {
+      const filePath = path.join(__dirname, file.path);
+      const fileBuffer = fs.readFileSync(filePath);
+      return {
+        url: fileBuffer.toString('base64') // Store in the format defined in ImageSchema
+      };
+    });
+
+    // Update product with new images
+    await Products.updateOne(
       { _id: new ObjectId(productId) },
-      { $push: { image: { $each: array } } }
-      );
+      { $push: { images: { $each: base64Images } } } // Use $each to push multiple images
+    );
 
-  const viewProduct = await Products.findOne({ _id: new ObjectId(productId) });
+    // Retrieve the updated product
+    const updatedProduct = await Products.findOne({ _id: new ObjectId(productId) });
 
+    console.log('Updated Product:', updatedProduct);
 
-    res.json(viewProduct);
+    res.status(200).json({ 
+      message: 'Images uploaded successfully',
+      product: updatedProduct,
+    });
   } catch (error) {
-      res.status(500).send(error).json()
+    console.error('Error uploading images:', error);
+    res.status(500).json({ error: error.message });
   }
-
-}));
-
+});
 
 // მოთხოვნა ამოწმებს ბაზაში არსბულ უნუკალურ მომხმარებლებს
   app.get("/Members", asyncMiddleware(async (req, res) => {
@@ -143,14 +177,20 @@ app.post("/register", asyncMiddleware(async (req, res) => {
 }));
 
         // მოთხოვნა ქმნის ახალ პროდუქტს შეყვანილი მონაცემების შესაბამისად
-app.post("/createProduct", asyncMiddleware(async (req, res) => {
-    const newProduct = await createNewProduct(req.body);
-        await Users.updateOne(
-            { email: req.body.email },
-            { $push: { products: newProduct._id } }
-        );
-    res.status(201).json(newProduct._id);
-}));
+        app.post("/createProduct", asyncMiddleware(async (req, res) => {
+
+          const productData = req.body;          
+          
+          console.log(productData); 
+
+          const newProduct = await createNewProduct(req.body);
+          await Users.updateOne(
+              { email: req.body.email },
+              { $push: { products: newProduct._id } }
+          );
+          res.status(201).json(newProduct._id);
+      }));
+
 
           // მომხმარებლის მიერ სასურველი პროდუქტტტის ფავრიტად მონიშვნა
 app.post("/FavoritProduct", asyncMiddleware(async (req, res) => {
