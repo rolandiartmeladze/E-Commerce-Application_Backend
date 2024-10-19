@@ -124,4 +124,5 @@ The project is connected to MongoDB Atlas, a cloud-based NoSQL database, using M
 To run unit tests and integration tests, you can use a testing framework like Jest or Mocha. (Testing suite configuration is not included in this version.)
 
 📧 Contact
-If you encounter any issues, feel free to open a ticket on the issue tracker.
++995 595 03-56-68
+rartmeladze@gmail.com
