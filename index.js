@@ -177,7 +177,7 @@ app.post("/register", asyncMiddleware(async (req, res) => {
 }));
 
         // მოთხოვნა ქმნის ახალ პროდუქტს შეყვანილი მონაცემების შესაბამისად
-        app.post("/createProduct", asyncMiddleware(async (req, res) => {
+        app.post("/createProduct" , asyncMiddleware(async (req, res) => {
 
           const productData = req.body;          
           
