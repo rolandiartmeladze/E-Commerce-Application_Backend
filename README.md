@@ -20,3 +20,13 @@ Backend for a Node.js-based e-commerce application. This project provides a comp
 - **Sales**: Users can sell their products via the platform.
 - **API Integration**: The app provides a seamless interaction between frontend and backend with well-documented API routes.
 - **MongoDB Cloud Integration**: Uses **Mongoose Atlas** for cloud database management.
+
+## 🛠️ Technologies Used
+
+- **Node.js**: Backend runtime environment.
+- **Express.js**: Fast, unopinionated, minimalist web framework for Node.js.
+- **MongoDB & Mongoose**: NoSQL database and an object data modeling (ODM) library for MongoDB and Node.js.
+- **Multer**: Middleware for handling multipart/form-data, especially for file uploads.
+- **JWT (JSON Web Tokens)**: Securely transmits information between the client and the server.
+- **Firebase**: Optional integration for additional services like notifications or storage.
+
