@@ -164,18 +164,6 @@ app.post('/addImage/:id', upload.array('images'), async (req, res) => {
   }
 });
 
-// მოთხოვნა ამოწმებს ბაზაში არსბულ უნუკალურ მომხმარებლებს
-  app.get("/Members", asyncMiddleware(async (req, res) => {
-    const Members = await Users.find().toArray();
-    res.status(200).json(Members);
-  }));
-
-    // მოთხოვნა ქმნის ახალ მომხმარებელს მონაცემტა ბაზაშე users კოლექციაში
-app.post("/register", asyncMiddleware(async (req, res) => {
-    const newUser = await createNewUser(req.body);
-    res.status(201).json(newUser);
-}));
-
         // მოთხოვნა ქმნის ახალ პროდუქტს შეყვანილი მონაცემების შესაბამისად
         app.post("/createProduct" , asyncMiddleware(async (req, res) => {
 
@@ -190,6 +178,20 @@ app.post("/register", asyncMiddleware(async (req, res) => {
           );
           res.status(201).json(newProduct._id);
       }));
+
+
+
+// მოთხოვნა ამოწმებს ბაზაში არსბულ უნუკალურ მომხმარებლებს
+  app.get("/Members", asyncMiddleware(async (req, res) => {
+    const Members = await Users.find().toArray();
+    res.status(200).json(Members);
+  }));
+
+    // მოთხოვნა ქმნის ახალ მომხმარებელს მონაცემტა ბაზაშე users კოლექციაში
+app.post("/register", asyncMiddleware(async (req, res) => {
+    const newUser = await createNewUser(req.body);
+    res.status(201).json(newUser);
+}));
 
 
           // მომხმარებლის მიერ სასურველი პროდუქტტტის ფავრიტად მონიშვნა

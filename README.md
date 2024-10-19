@@ -30,3 +30,41 @@ Backend for a Node.js-based e-commerce application. This project provides a comp
 - **JWT (JSON Web Tokens)**: Securely transmits information between the client and the server.
 - **Firebase**: Optional integration for additional services like notifications or storage.
 
+## 📂 Project Structure
+
+Here's a look at the project structure:
+
+```bash
+📦 Backend
+ ┣ 📂controllers
+ ┃ ┣ 📜addCart.js
+ ┃ ┣ 📜findProducts.js
+ ┃ ┣ 📜mainProduct.js
+ ┃ ┣ 📜saleController.js
+ ┃ ┣ 📜saleJournal.js
+ ┃ ┗ 📜sortProducts.js
+ ┣ 📂models
+ ┃ ┣ 📜image.js
+ ┃ ┣ 📜Product.js
+ ┃ ┗ 📜User.js
+ ┣ 📂routes
+ ┃ ┣ 📜cartRoutes.js
+ ┃ ┣ 📜findRoutes.js
+ ┃ ┣ 📜journalRoutes.js
+ ┃ ┣ 📜mainRoutes.js
+ ┃ ┣ 📜saleRoutes.js
+ ┃ ┗ 📜sortRoutes.js
+ ┣ 📂tools
+ ┃ ┣ 📜CreateNewProduct.js
+ ┃ ┣ 📜CreateNewUser.js
+ ┃ ┗ 📜emailConfig.js
+ ┣ 📂uploads
+ ┣ 📜index.js
+ ┣ 📜index.html
+ ┣ 📜.env
+ ┣ 📜package.json
+ ┣ 📜package-lock.json
+ ┗ 📜.gitignore
+
+
+ 
