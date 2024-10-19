@@ -67,4 +67,61 @@ Here's a look at the project structure:
  ┗ 📜.gitignore
 
 
- 
+<h1>📂Key Files</h1>
+    controllers/: Contains logic for handling various routes such as adding products, managing carts, and sales operations.
+    models/: Defines database schemas for products and users.
+    routes/: Handles API routing for the main features like products, carts, and sales.
+    tools/: Includes utility functions for product/user creation and email configuration.
+    uploads/: Stores any uploaded media files.
+    index.js: Entry point of the application.
+    index.html: A simple homepage (optional for backend projects).
+
+🔧 Setup and Installation
+Clone the repository:
+
+bash
+კოდის კოპირება
+git clone https://github.com/rolandiartmeladze/E-Commerce-Application_Backend.git
+Navigate to the project directory:
+
+bash
+კოდის კოპირება
+cd E-Commerce-Application_Backend
+Install the dependencies:
+
+bash
+კოდის კოპირება
+npm install
+Create a .env file and add your environment variables:
+
+bash
+კოდის კოპირება
+MONGODB_URI=your-mongo-db-url
+JWT_SECRET=your-secret-key
+PORT=your-port-number
+Start the server:
+
+bash
+კოდის კოპირება
+npm start
+The server will run on http://localhost:<PORT>.
+
+🚀 API Endpoints
+Here are some of the key API endpoints for this application:
+
+GET /api/products: Fetch all products.
+POST /api/products: Add a new product.
+GET /api/cart: Get the user's cart.
+POST /api/cart: Add a product to the cart.
+POST /api/users/register: Register a new user.
+POST /api/users/login: Log in with user credentials.
+For a full list of API endpoints, refer to the routes folder.
+
+💾 Database
+The project is connected to MongoDB Atlas, a cloud-based NoSQL database, using Mongoose. Ensure you configure your .env file with the correct MongoDB URI.
+
+🧪 Testing
+To run unit tests and integration tests, you can use a testing framework like Jest or Mocha. (Testing suite configuration is not included in this version.)
+
+📧 Contact
+If you encounter any issues, feel free to open a ticket on the issue tracker.
